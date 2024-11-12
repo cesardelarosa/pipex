@@ -27,6 +27,6 @@ void	ft_handle_errors(char *prog, char *msg, char *cmd, int exit_code)
 		ft_putstr_fd(": ", 2);
 	}
 	ft_putstr_fd(msg, 2);
-	perror(NULL);
+	ft_putstr_fd("\n", 2);
 	exit(exit_code);
 }
