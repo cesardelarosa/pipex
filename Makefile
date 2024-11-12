@@ -5,9 +5,9 @@ SRC_DIR = src
 #BONUS_DIR = bonus
 OBJ_DIR = obj
 LIBFT_DIR = ./libft
-INCLUDE_DIR = ./include
+#INCLUDE_DIR = ./include
 
-SRCS = pipex.c utils.c
+SRCS = pipex.c #utils.c
 SRCS_BONUS = $(wildcard $(BONUS_DIR)/*.c)
 
 OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS))
@@ -16,7 +16,7 @@ OBJS_BONUS = $(patsubst $(BONUS_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS_BONUS))
 LIBFT = $(LIBFT_DIR)/libft.a
 
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra -I$(INCLUDE_DIR) -I$(LIBFT_DIR)
+CFLAGS = -Wall -Werror -Wextra -I$(LIBFT_DIR) #-I$(INCLUDE_DIR)
 
 all: $(NAME)
 

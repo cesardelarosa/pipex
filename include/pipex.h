@@ -20,11 +20,7 @@
 # include <sys/wait.h>
 # include "libft.h"
 
-void	child_process(int *pipe_fd, char **argv, char **envp);
-void	parent_process(int *pipe_fd, char **argv, char **envp);
 char	*get_command_path(char *cmd, char **envp);
 void	handle_errors(char *msg, char *cmd);
-char	*join_paths(const char *path, const char *cmd);
-char	**get_paths_from_envp(char **envp);
 
 #endif

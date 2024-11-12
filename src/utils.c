@@ -13,40 +13,6 @@
 #include <stdlib.h>
 #include "pipex.h"
 
-void	handle_errors(char *msg, char *cmd)
-{
-	if (cmd)
-		ft_printf("pipex: %s: %s\n", cmd, msg);
-	else
-		perror(msg);
-	exit(EXIT_FAILURE);
-}
-
-char	*join_paths(const char *path, const char *cmd)
-{
-	char	*temp_path;
-	char	*full_path;
-
-	temp_path = ft_strjoin(path, "/");
-	if (!temp_path)
-		return (NULL);
-	full_path = ft_strjoin(temp_path, cmd);
-	free(temp_path);
-	return (full_path);
-}
-
-char	**get_paths_from_envp(char **envp)
-{
-	int	i;
-
-	i = 0;
-	while (envp[i] && ft_strncmp(envp[i], "PATH=", 5) != 0)
-		i++;
-	if (!envp[i])
-		return (NULL);
-	return (ft_split(envp[i] + 5, ':'));
-}
-
 char	*get_command_path(char *cmd, char **envp)
 {
 	char	**paths;
@@ -72,4 +38,29 @@ char	*get_command_path(char *cmd, char **envp)
 	}
 	ft_free_split(paths);
 	return (NULL);
+}
+
+char	*join_paths(const char *path, const char *cmd)
+{
+	char	*temp_path;
+	char	*full_path;
+
+	temp_path = ft_strjoin(path, "/");
+	if (!temp_path)
+		return (NULL);
+	full_path = ft_strjoin(temp_path, cmd);
+	free(temp_path);
+	return (full_path);
+}
+
+char	**get_paths_from_envp(char **envp)
+{
+	int	i;
+
+	i = 0;
+	while (envp[i] && ft_strncmp(envp[i], "PATH=", 5) != 0)
+		i++;
+	if (!envp[i])
+		return (NULL);
+	return (ft_split(envp[i] + 5, ':'));
 }
