@@ -82,6 +82,6 @@ char	*ft_strtok(char *str, const char *delim);
 void	ft_error_exit(char *msg, int status);
 void	ft_error_exit_free(char *msg, int status, void *to_free, \
 			void (*free_func)(void *));
-void	ft_handle_errors(char *program, char *msg, char *cmd, int status);
+void	ft_handle_errors(char *prog, char *msg, char *cmd, int exit_code);
 
 #endif 

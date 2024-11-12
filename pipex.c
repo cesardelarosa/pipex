@@ -28,79 +28,66 @@ static void	execute_command(char *cmd, char **envp)
 	args[2] = cmd;
 	args[3] = NULL;
 	if (execve(sh, args, envp) == -1)
-		ft_handle_errors("pipex", "Execution failed", cmd, EXIT_FAILURE);
+		ft_handle_errors("pipex", "command not found", cmd, 127);
 }
 
-void	child_process(int *pipe_fd, char **argv, char **envp)
+static void	dup_with_error_check(int oldfd, int newfd, char *context)
+{
+	if (dup2(oldfd, newfd) >= 0)
+		return ;
+	close(oldfd);
+	ft_handle_errors("pipex", "dup2 failed", context, 1);
+}
+
+static void	child_process(int *pipe_fd, char **argv, char **envp)
 {
 	int	infile;
 
 	infile = open(argv[1], O_RDONLY);
 	if (infile < 0)
-	{
-		ft_handle_errors("pipex", "Failed to open input file", argv[1], \
-			EXIT_FAILURE);
-	}
+		ft_handle_errors("pipex", "no such file or directory", argv[1], 1);
 	close(pipe_fd[0]);
-	if (dup2(infile, STDIN_FILENO) < 0)
-	{
-		ft_handle_errors("pipex", "Failed to duplicate input file descriptor", \
-			"infile", EXIT_FAILURE);
-	}
-	if (dup2(pipe_fd[1], STDOUT_FILENO) < 0)
-	{
-		ft_handle_errors("pipex", "Failed to duplicate pipe output descriptor", \
-			"pipe", EXIT_FAILURE);
-	}
+	dup_with_error_check(infile, STDIN_FILENO, "infile");
+	dup_with_error_check(pipe_fd[1], STDOUT_FILENO, "pipe output");
 	close(pipe_fd[1]);
 	close(infile);
 	execute_command(argv[2], envp);
 }
 
-void	parent_process(int *pipe_fd, char **argv, char **envp)
+static void	parent_process(int *pipe_fd, char **argv, char **envp)
 {
 	int	outfile;
-	int	status;
 
 	outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (outfile < 0)
-	{
-		ft_handle_errors("pipex", "Failed to open output file", argv[4], \
-			EXIT_FAILURE);
-	}
+		ft_handle_errors("pipex", "permission denied", argv[4], 1);
 	close(pipe_fd[1]);
-	if (dup2(pipe_fd[0], STDIN_FILENO) < 0)
-	{
-		ft_handle_errors("pipex", "Failed to duplicate pipe input descriptor", \
-			"pipe", EXIT_FAILURE);
-	}
-	if (dup2(outfile, STDOUT_FILENO) < 0)
-	{
-		ft_handle_errors("pipex", "Failed to duplicate output file descriptor", \
-			"outfile", EXIT_FAILURE);
-	}
+	dup_with_error_check(pipe_fd[0], STDIN_FILENO, "pipe input");
+	dup_with_error_check(outfile, STDOUT_FILENO, "outfile");
 	close(pipe_fd[0]);
 	close(outfile);
 	execute_command(argv[3], envp);
-	waitpid(-1, &status, 0);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	int		pipe_fd[2];
 	pid_t	pid;
+	int		status;
 
 	if (argc != 5)
-		ft_handle_errors("pipex", "Invalid number of arguments", \
-			"Usage: ./pipex file1 cmd1 cmd2 file2", EXIT_FAILURE);
+		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
 	if (pipe(pipe_fd) == -1)
-		ft_handle_errors("pipex", "Failed to create pipe", NULL, EXIT_FAILURE);
+		ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
 	pid = fork();
 	if (pid == -1)
-		ft_handle_errors("pipex", "Failed to fork process", NULL, EXIT_FAILURE);
+		ft_handle_errors("pipex", "fork failed", NULL, 1);
 	if (pid == 0)
 		child_process(pipe_fd, argv, envp);
 	else
+	{
 		parent_process(pipe_fd, argv, envp);
-	return (0);
+		waitpid(-1, &status, 0);
+	}
+	return (status);
 }
