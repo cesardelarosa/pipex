@@ -1,39 +1,53 @@
 NAME = pipex
+#NAME_BONUS = pipex_bonus
+
+SRC_DIR = src
+#BONUS_DIR = bonus
+OBJ_DIR = obj
+LIBFT_DIR = ./libft
+INCLUDE_DIR = ./include
 
 SRCS = pipex.c utils.c
-OBJS = $(SRCS:.c=.o)
+SRCS_BONUS = $(wildcard $(BONUS_DIR)/*.c)
 
-LIBFT_DIR = ./libft
+OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS))
+OBJS_BONUS = $(patsubst $(BONUS_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS_BONUS))
+
 LIBFT = $(LIBFT_DIR)/libft.a
 
-PRINTF_DIR = ./ft_printf
-PRINTF = $(PRINTF_DIR)/libftprintf.a
-
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra -I$(LIBFT_DIR) -I$(PRINTF_DIR)
+CFLAGS = -Wall -Werror -Wextra -I$(INCLUDE_DIR) -I$(LIBFT_DIR)
 
 all: $(NAME)
 
-$(NAME): $(OBJS) $(LIBFT) $(PRINTF)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) -L$(LIBFT_DIR) -lft -L$(PRINTF_DIR) -lftprintf
+#bonus: $(NAME_BONUS)
+
+$(NAME): $(OBJS) $(LIBFT)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) -L$(LIBFT_DIR) -lft
+
+$(NAME_BONUS): $(OBJS_BONUS) $(LIBFT)
+	$(CC) $(CFLAGS) -o $(NAME_BONUS) $(OBJS_BONUS) -L$(LIBFT_DIR) -lft
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: $(BONUS_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
 $(LIBFT):
-	make -C $(LIBFT_DIR)
-
-$(PRINTF):
-	make -C $(PRINTF_DIR)
+	make complete -C $(LIBFT_DIR)
 
 clean:
-	rm -f $(OBJS)
+	rm -rf $(OBJ_DIR)
 	make clean -C $(LIBFT_DIR)
-	make clean -C $(PRINTF_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(NAME_BONUS)
 	make fclean -C $(LIBFT_DIR)
-	make fclean -C $(PRINTF_DIR)
 
 re: fclean all
 
-.PHONY: all clean fclean re
-
+.PHONY: all bonus clean fclean re

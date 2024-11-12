@@ -13,23 +13,10 @@
 #include <stdlib.h>
 #include "pipex.h"
 
-void	ft_free_split(char **split)
-{
-	int	i;
-
-	i = 0;
-	while (split[i])
-	{
-		free(split[i]);
-		i++;
-	}
-	free(split);
-}
-
 void	handle_errors(char *msg, char *cmd)
 {
 	if (cmd)
-		ft_printf("bash: %s: %s\n", cmd, msg);
+		ft_printf("pipex: %s: %s\n", cmd, msg);
 	else
 		perror(msg);
 	exit(EXIT_FAILURE);

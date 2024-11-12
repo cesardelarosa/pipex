@@ -18,8 +18,7 @@
 # include <stdio.h>
 # include <fcntl.h>
 # include <sys/wait.h>
-# include "libft/libft.h"
-# include "ft_printf/ft_printf.h"
+# include "libft.h"
 
 void	child_process(int *pipe_fd, char **argv, char **envp);
 void	parent_process(int *pipe_fd, char **argv, char **envp);
