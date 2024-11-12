@@ -1,7 +1,7 @@
 NAME = pipex
 #NAME_BONUS = pipex_bonus
 
-SRC_DIR = src
+SRC_DIR = .
 #BONUS_DIR = bonus
 OBJ_DIR = obj
 LIBFT_DIR = ./libft
