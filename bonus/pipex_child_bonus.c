@@ -52,9 +52,13 @@ void	setup_infile(t_pipex *px)
 {
 	int	infile_fd;
 
+	if (access(px->infile, F_OK) == -1)
+		ft_handle_errors("pipex", "no such file or directory", px->infile, 1);
+	if (access(px->infile, R_OK) == -1)
+		ft_handle_errors("pipex", "permission denied", px->infile, 1);
 	infile_fd = open(px->infile, O_RDONLY);
 	if (infile_fd < 0)
-		ft_handle_errors("pipex", "no such file or directory", px->infile, 1);
+		ft_handle_errors("pipex", "error opening file", px->infile, 1);
 	dup_with_error_check(infile_fd, STDIN_FILENO);
 	close(infile_fd);
 }
@@ -69,9 +73,11 @@ void	setup_outfile(t_pipex *px)
 		flags |= O_APPEND;
 	else
 		flags |= O_TRUNC;
+	if (access(px->outfile, W_OK) == -1 && access(px->outfile, F_OK) == 0)
+		ft_handle_errors("pipex", "permission denied", px->outfile, 1);
 	outfile_fd = open(px->outfile, flags, 0644);
 	if (outfile_fd < 0)
-		ft_handle_errors("pipex", "permission denied", px->outfile, 1);
+		ft_handle_errors("pipex", "error opening file", px->outfile, 1);
 	dup_with_error_check(outfile_fd, STDOUT_FILENO);
 	close(outfile_fd);
 }
@@ -87,7 +93,7 @@ void	handle_here_doc(t_pipex *px)
 	{
 		ft_putstr_fd("heredoc> ", 1);
 		line = get_next_line(STDIN_FILENO);
-		if (!line || ft_strncmp(line, px->argv[2], ft_strlen(px->argv[2])) == 0)
+		if (!line || ft_strcmp(line, px->argv[2]) == 0)
 		{
 			free(line);
 			break ;

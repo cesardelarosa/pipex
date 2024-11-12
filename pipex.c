@@ -43,9 +43,13 @@ static void	child_process(int *pipe_fd, char **argv, char **envp)
 {
 	int	infile;
 
+	if (access(argv[1], F_OK) == -1)
+		ft_handle_errors("pipex", "no such file or directory", argv[1], 1);
+	if (access(argv[1], R_OK) == -1)
+		ft_handle_errors("pipex", "permission denied", argv[1], 1);
 	infile = open(argv[1], O_RDONLY);
 	if (infile < 0)
-		ft_handle_errors("pipex", "no such file or directory", argv[1], 1);
+		ft_handle_errors("pipex", "error opening file", argv[1], 1);
 	close(pipe_fd[0]);
 	dup_with_error_check(infile, STDIN_FILENO, "infile");
 	dup_with_error_check(pipe_fd[1], STDOUT_FILENO, "pipe output");
@@ -58,9 +62,11 @@ static void	parent_process(int *pipe_fd, char **argv, char **envp)
 {
 	int	outfile;
 
+	if (access(argv[4], W_OK) == -1 && access(argv[4], F_OK) == 0)
+		ft_handle_errors("pipex", "permission denied", argv[4], 1);
 	outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (outfile < 0)
-		ft_handle_errors("pipex", "permission denied", argv[4], 1);
+		ft_handle_errors("pipex", "error opening file", argv[4], 1);
 	close(pipe_fd[1]);
 	dup_with_error_check(pipe_fd[0], STDIN_FILENO, "pipe input");
 	dup_with_error_check(outfile, STDOUT_FILENO, "outfile");
