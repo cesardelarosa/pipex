@@ -77,7 +77,7 @@ int	main(int argc, char **argv, char **envp)
 
 	if (argc != 5)
 	{
-		printf("Use: ./pipex <infile> <cmd1> <cmd2> <outfile>\n");
+		ft_printf("Use: ./pipex <infile> <cmd1> <cmd2> <outfile>\n");
 		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
 	}
 	if (pipe(pipe_fd) == -1)
