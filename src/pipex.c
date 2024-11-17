@@ -16,20 +16,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include "libft.h"
-
-static void	execute_command(char *cmd, char **envp)
-{
-	char	*args[4];
-	char	*sh;
-
-	sh = "/bin/sh";
-	args[0] = sh;
-	args[1] = "-c";
-	args[2] = cmd;
-	args[3] = NULL;
-	if (execve(sh, args, envp) == -1)
-		ft_handle_errors("pipex", "command not found", cmd, 127);
-}
+#include "pipex.h"
 
 static void	dup_with_error_check(int oldfd, int newfd, char *context)
 {

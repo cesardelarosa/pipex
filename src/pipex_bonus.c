@@ -93,7 +93,7 @@ int	main(int argc, char **argv, char **envp)
 
 	if (argc < 5)
 	{
-		ft_printf("Usage: ./pipex [here_doc DELIMITER]/[<infile>] <cmd1>"
+		ft_printf("Usage: ./pipex [\"here_doc\" <delimiter>]/[<infile>] <cmd1>"
 			" ... <cmdN> <outfile>\n");
 		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
 	}
