@@ -62,28 +62,44 @@ static void	parent_process(int *pipe_fd, char **argv, char **envp)
 	execute_command(argv[3], envp);
 }
 
+static int	wait_children(pid_t pid1, pid_t pid2)
+{
+	int	status1;
+	int	status2;
+	int	exit_code;
+
+	waitpid(pid1, &status1, 0);
+	waitpid(pid2, &status2, 0);
+	if (WIFEXITED(status2))
+		exit_code = WEXITSTATUS(status2);
+	else
+		exit_code = 1;
+	return (exit_code);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int		pipe_fd[2];
-	pid_t	pid;
-	int		status;
+	pid_t	pid1;
+	pid_t	pid2;
+	int		exit_code;
 
 	if (argc != 5)
-	{
-		ft_printf("Use: ./pipex <infile> <cmd1> <cmd2> <outfile>\n");
 		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
-	}
 	if (pipe(pipe_fd) == -1)
 		ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
-	pid = fork();
-	if (pid == -1)
+	pid1 = fork();
+	if (pid1 == -1)
 		ft_handle_errors("pipex", "fork failed", NULL, 1);
-	if (pid == 0)
+	if (pid1 == 0)
 		child_process(pipe_fd, argv, envp);
-	else
-	{
+	pid2 = fork();
+	if (pid2 == -1)
+		ft_handle_errors("pipex", "fork failed", NULL, 1);
+	if (pid2 == 0)
 		parent_process(pipe_fd, argv, envp);
-		waitpid(-1, &status, 0);
-	}
-	return (status);
+	close(pipe_fd[0]);
+	close(pipe_fd[1]);
+	exit_code = wait_children(pid1, pid2);
+	return (exit_code);
 }

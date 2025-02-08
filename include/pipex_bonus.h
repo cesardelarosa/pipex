@@ -15,9 +15,12 @@
 
 # include "struct_bonus.h"
 
+void	free_pipex(t_pipex *pipex);
 void	setup_here_doc(t_pipex *pipex);
 void	handle_child_process(t_pipex *pipex, int i, int in_fd, int *pipe_fd);
 void	handle_parent_process(pid_t pid, int *in_fd, int *pipe_fd, int i);
 void	execute_command(char *cmd, char **envp);
+void	parse_input(t_pipex *pipex, int argc, char **argv);
+char	**parse_commands(char **argv, int start, int cmd_count);
 
 #endif

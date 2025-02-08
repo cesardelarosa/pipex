@@ -1,14 +1,14 @@
 NAME = pipex
 
 SRC_DIR = src
-BONUS_DIR = src
+BONUS_DIR = bonus
 OBJ_DIR = obj
 LIBFT_DIR = ./libft
 INC_DIR = ./include
 
 SRCS = pipex.c
 SRCS_COMMON = execution.c
-SRCS_BONUS = pipex_bonus.c heredoc_bonus.c utils_bonus.c
+SRCS_BONUS = pipex_bonus.c heredoc_bonus.c utils_bonus.c parse_bonus.c struct_bonus.c
 
 OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS)) \
 	   $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS_COMMON))
