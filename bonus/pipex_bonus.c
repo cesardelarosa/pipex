@@ -27,29 +27,43 @@ void	open_files(t_pipex *pipex, int argc, char **argv)
 		ft_handle_errors("pipex", "error opening file", argv[argc - 1], 1);
 }
 
-int	execute_pipeline(t_pipex *pipex)
+static void	process_pipeline_command(t_pipex *pipex, int i, int *in_fd)
 {
-	int		i;
-	int		in_fd;
 	int		pipe_fd[2];
 	pid_t	pid;
+
+	pipe_fd[0] = -1;
+	pipe_fd[1] = -1;
+	if (i < pipex->cmd_count - 1)
+	{
+		if (pipe(pipe_fd) == -1)
+			ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
+	}
+	pid = fork();
+	if (pid == -1)
+		ft_handle_errors("pipex", "fork failed", NULL, 1);
+	if (pid == 0)
+		handle_child_process(pipex, i, *in_fd, pipe_fd);
+	else
+		handle_parent_process(pid, in_fd, pipe_fd, i);
+}
+
+int	execute_pipeline(t_pipex *pipex)
+{
+	int	i;
+	int	in_fd;
 
 	in_fd = pipex->infile_fd;
 	i = 0;
 	while (i < pipex->cmd_count)
 	{
-		if (i < pipex->cmd_count - 1 && pipe(pipe_fd) == -1)
-			ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
-		pid = fork();
-		if (pid == -1)
-			ft_handle_errors("pipex", "fork failed", NULL, 1);
-		if (pid == 0)
-			handle_child_process(pipex, i, in_fd, pipe_fd);
-		else
-			handle_parent_process(pid, &in_fd, pipe_fd, i++);
+		process_pipeline_command(pipex, i, &in_fd);
+		i++;
 	}
-	close(pipex->infile_fd);
-	close(pipex->outfile_fd);
+	if (in_fd != -1)
+		close(in_fd);
+	if (pipex->outfile_fd != -1)
+		close(pipex->outfile_fd);
 	return (0);
 }
 
