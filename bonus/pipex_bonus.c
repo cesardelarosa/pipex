@@ -91,6 +91,11 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	*pipex;
 
+	if (argc < 2)
+	{
+		ft_printf("Usage: " USAGE);
+		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
+	}
 	pipex = parse_input(argc, argv, envp);
 	execute_pipeline(pipex);
 	free_pipex(pipex);
