@@ -6,21 +6,11 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 00:17:00 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/19 21:11:32 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/19 21:35:06 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
-
-void	wait_pids(int n, pid_t *pid_arr)
-{
-	int	i;
-
-	i = 0;
-	while (i < n)
-		waitpid(pid_arr[i++], NULL, 0);
-	free(pid_arr);
-}
 
 static void	child_process(t_pipex *pipex, int i, int in_fd, int pipe_fd[2])
 {
@@ -46,6 +36,7 @@ static void	launch_command(t_pipex *pipex, int i, int *in_fd, pid_t *pid_arr)
 {
 	int		pipe_fd[2];
 
+	ft_bzero(pipe_fd, sizeof(pipe_fd));
 	if (i < pipex->cmd_count - 1 && pipe(pipe_fd) == -1)
 		ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
 	pid_arr[i] = fork();
@@ -81,8 +72,31 @@ static int	execute_pipeline(t_pipex *pipex)
 		close(in_fd);
 	if (pipex->outfile_fd != -1)
 		close(pipex->outfile_fd);
-	wait_pids(pipex->cmd_count, pid_arr);
+	i = 0;
+	while (i < pipex->cmd_count)
+		waitpid(pid_arr[i++], NULL, 0);
+	free(pid_arr);
 	return (0);
+}
+
+void	free_pipex(t_pipex *pipex)
+{
+	if (pipex->cmds)
+	{
+		free(pipex->cmds);
+		pipex->cmds = NULL;
+	}
+	if (pipex->infile_fd >= 0)
+	{
+		close(pipex->infile_fd);
+		pipex->infile_fd = -1;
+	}
+	if (pipex->outfile_fd >= 0)
+	{
+		close(pipex->outfile_fd);
+		pipex->outfile_fd = -1;
+	}
+	free(pipex);
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -94,7 +108,11 @@ int	main(int argc, char **argv, char **envp)
 		ft_printf("Usage: " USAGE);
 		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
 	}
-	pipex = parse_input(argc, argv, envp);
+	pipex = malloc(sizeof(t_pipex));
+	if (!pipex)
+		ft_handle_errors("pipex", "malloc failed", NULL, 1);
+	ft_bzero(pipex, sizeof(t_pipex));
+	parse_input(argc, argv, envp, pipex);
 	execute_pipeline(pipex);
 	free_pipex(pipex);
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 17:56:21 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/19 19:46:40 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/19 21:35:24 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,33 @@ static char	**parse_commands(char **argv, int start, int cmd_count)
 	return (cmds);
 }
 
+void	setup_here_doc(t_pipex *pipex)
+{
+	int		p[2];
+	char	*line;
+
+	if (pipe(p) == -1)
+		ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
+	while (1)
+	{
+		write(STDOUT_FILENO, "heredoc> ", 9);
+		line = get_next_line(STDIN_FILENO);
+		if (!line)
+			break ;
+		line[ft_strcspn(line, "\n")] = '\0';
+		if (!ft_strcmp(line, pipex->limiter))
+		{
+			free(line);
+			break ;
+		}
+		write(p[1], line, ft_strlen(line));
+		write(p[1], "\n", 1);
+		free(line);
+	}
+	close(p[1]);
+	pipex->infile_fd = p[0];
+}
+
 static int	check_infile(char *infile)
 {
 	int	fd;
@@ -58,9 +85,8 @@ static int	check_infile(char *infile)
 	return (fd);
 }
 
-t_pipex	*parse_input(int argc, char **argv, char **envp)
+void	parse_input(int argc, char **argv, char **envp, t_pipex *pipex)
 {
-	t_pipex	*pipex;
 	int		heredoc;
 
 	heredoc = !ft_strcmp(argv[1], "here_doc");
@@ -69,7 +95,6 @@ t_pipex	*parse_input(int argc, char **argv, char **envp)
 		ft_printf("Usage: " USAGE);
 		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
 	}
-	pipex = init_pipex();
 	if (heredoc)
 	{
 		pipex->limiter = argv[2];
@@ -84,5 +109,4 @@ t_pipex	*parse_input(int argc, char **argv, char **envp)
 	pipex->cmd_count = argc - 3 - heredoc;
 	pipex->cmds = parse_commands(argv, 2 + heredoc, pipex->cmd_count);
 	open_file(pipex, argc, argv);
-	return (pipex);
 }
