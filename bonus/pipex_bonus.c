@@ -6,13 +6,23 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 00:17:00 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/19 19:50:45 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/19 21:11:32 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-static void	handle_child_process(t_pipex *pipex, int i, int in_fd, int *pipe_fd)
+void	wait_pids(int n, pid_t *pid_arr)
+{
+	int	i;
+
+	i = 0;
+	while (i < n)
+		waitpid(pid_arr[i++], NULL, 0);
+	free(pid_arr);
+}
+
+static void	child_process(t_pipex *pipex, int i, int in_fd, int pipe_fd[2])
 {
 	if (dup2(in_fd, STDIN_FILENO) == -1)
 		ft_handle_errors("pipex", "dup2 failed", "input", 1);
@@ -30,60 +40,48 @@ static void	handle_child_process(t_pipex *pipex, int i, int in_fd, int *pipe_fd)
 			ft_handle_errors("pipex", "dup2 failed", "outfile", 1);
 		close(pipex->outfile_fd);
 	}
-	execute_command(pipex->cmds[i], pipex->envp);
 }
 
-static void	handle_parent_process(pid_t pid, int *in_fd, int *pipe_fd, int i)
-{
-	int	status;
-
-	waitpid(pid, &status, 0);
-	if (*in_fd != -1)
-	{
-		close(*in_fd);
-		*in_fd = -1;
-	}
-	if (pipe_fd[0] != -1)
-	{
-		*in_fd = pipe_fd[0];
-		close(pipe_fd[1]);
-	}
-}
-
-static void	process_pipeline_command(t_pipex *pipex, int i, int *in_fd)
+static void	launch_command(t_pipex *pipex, int i, int *in_fd, pid_t *pid_arr)
 {
 	int		pipe_fd[2];
-	pid_t	pid;
 
-	pipe_fd[0] = -1;
-	pipe_fd[1] = -1;
+	if (i < pipex->cmd_count - 1 && pipe(pipe_fd) == -1)
+		ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
+	pid_arr[i] = fork();
+	if (pid_arr[i] == -1)
+		ft_handle_errors("pipex", "fork failed", NULL, 1);
+	if (pid_arr[i] == 0)
+	{
+		child_process(pipex, i, *in_fd, pipe_fd);
+		execute_command(pipex->cmds[i], pipex->envp);
+	}
+	close(*in_fd);
 	if (i < pipex->cmd_count - 1)
 	{
-		if (pipe(pipe_fd) == -1)
-			ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
+		close(pipe_fd[1]);
+		*in_fd = pipe_fd[0];
 	}
-	pid = fork();
-	if (pid == -1)
-		ft_handle_errors("pipex", "fork failed", NULL, 1);
-	if (pid == 0)
-		handle_child_process(pipex, i, *in_fd, pipe_fd);
-	else
-		handle_parent_process(pid, in_fd, pipe_fd, i);
 }
 
 static int	execute_pipeline(t_pipex *pipex)
 {
-	int	i;
-	int	in_fd;
+	int		i;
+	int		in_fd;
+	pid_t	*pid_arr;
 
+	pid_arr = malloc(sizeof(pid_t) * pipex->cmd_count);
+	if (!pid_arr)
+		ft_handle_errors("pipex", "malloc failed", NULL, 1);
 	in_fd = pipex->infile_fd;
 	i = 0;
 	while (i < pipex->cmd_count)
-		process_pipeline_command(pipex, i++, &in_fd);
+		launch_command(pipex, i++, &in_fd, pid_arr);
 	if (in_fd != -1)
 		close(in_fd);
 	if (pipex->outfile_fd != -1)
 		close(pipex->outfile_fd);
+	wait_pids(pipex->cmd_count, pid_arr);
 	return (0);
 }
 
