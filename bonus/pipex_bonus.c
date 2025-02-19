@@ -6,25 +6,48 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 00:17:00 by cde-la-r          #+#    #+#             */
-/*   Updated: 2024/11/15 00:17:00 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/19 19:50:45 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fcntl.h>
 #include "pipex_bonus.h"
 
-void	open_files(t_pipex *pipex, int argc, char **argv)
+static void	handle_child_process(t_pipex *pipex, int i, int in_fd, int *pipe_fd)
 {
-	int	flags;
-
-	flags = O_WRONLY | O_CREAT;
-	if (pipex->here_doc)
-		flags |= O_APPEND;
+	if (dup2(in_fd, STDIN_FILENO) == -1)
+		ft_handle_errors("pipex", "dup2 failed", "input", 1);
+	close(in_fd);
+	if (i < pipex->cmd_count - 1)
+	{
+		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
+			ft_handle_errors("pipex", "dup2 failed", "output", 1);
+		close(pipe_fd[1]);
+		close(pipe_fd[0]);
+	}
 	else
-		flags |= O_TRUNC;
-	pipex->outfile_fd = open(argv[argc - 1], flags, 0644);
-	if (pipex->outfile_fd < 0)
-		ft_handle_errors("pipex", "error opening file", argv[argc - 1], 1);
+	{
+		if (dup2(pipex->outfile_fd, STDOUT_FILENO) == -1)
+			ft_handle_errors("pipex", "dup2 failed", "outfile", 1);
+		close(pipex->outfile_fd);
+	}
+	execute_command(pipex->cmds[i], pipex->envp);
+}
+
+static void	handle_parent_process(pid_t pid, int *in_fd, int *pipe_fd, int i)
+{
+	int	status;
+
+	waitpid(pid, &status, 0);
+	if (*in_fd != -1)
+	{
+		close(*in_fd);
+		*in_fd = -1;
+	}
+	if (pipe_fd[0] != -1)
+	{
+		*in_fd = pipe_fd[0];
+		close(pipe_fd[1]);
+	}
 }
 
 static void	process_pipeline_command(t_pipex *pipex, int i, int *in_fd)
@@ -48,7 +71,7 @@ static void	process_pipeline_command(t_pipex *pipex, int i, int *in_fd)
 		handle_parent_process(pid, in_fd, pipe_fd, i);
 }
 
-int	execute_pipeline(t_pipex *pipex)
+static int	execute_pipeline(t_pipex *pipex)
 {
 	int	i;
 	int	in_fd;
@@ -56,10 +79,7 @@ int	execute_pipeline(t_pipex *pipex)
 	in_fd = pipex->infile_fd;
 	i = 0;
 	while (i < pipex->cmd_count)
-	{
-		process_pipeline_command(pipex, i, &in_fd);
-		i++;
-	}
+		process_pipeline_command(pipex, i++, &in_fd);
 	if (in_fd != -1)
 		close(in_fd);
 	if (pipex->outfile_fd != -1)
@@ -69,20 +89,10 @@ int	execute_pipeline(t_pipex *pipex)
 
 int	main(int argc, char **argv, char **envp)
 {
-	t_pipex	pipex;
+	t_pipex	*pipex;
 
-	if (argc < 5)
-	{
-		ft_printf("Usage: ./pipex [\"here_doc\" <delimiter>]/[<infile>] <cmd1>"
-			" ... <cmdN> <outfile>\n");
-		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
-	}
-	pipex.envp = envp;
-	parse_input(&pipex, argc, argv);
-	open_files(&pipex, argc, argv);
-	pipex.cmd_count = argc - 3 - pipex.here_doc;
-	pipex.cmds = parse_commands(argv, 2 + pipex.here_doc, pipex.cmd_count);
-	execute_pipeline(&pipex);
-	free_pipex(&pipex);
+	pipex = parse_input(argc, argv, envp);
+	execute_pipeline(pipex);
+	free_pipex(pipex);
 	return (0);
 }

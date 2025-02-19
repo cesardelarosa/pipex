@@ -8,7 +8,7 @@ INC_DIR = ./include
 
 SRCS = pipex.c
 SRCS_COMMON = execution.c
-SRCS_BONUS = pipex_bonus.c heredoc_bonus.c utils_bonus.c parse_bonus.c struct_bonus.c
+SRCS_BONUS = pipex_bonus.c heredoc_bonus.c parse_bonus.c struct_bonus.c
 
 OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS)) \
 	   $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS_COMMON))
