@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 17:56:21 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/20 11:24:25 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/20 11:57:34 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void	parse_input(int argc, char **argv, char **envp, t_pipex *pipex)
 	heredoc = argc > 1 && ft_strcmp(argv[1], "here_doc") == 0;
 	if (argc < 5 + heredoc)
 	{
-		ft_printf("Usage: " USAGE);
+		ft_printf("Usage: " USAGE "\n");
 		free_and_exit(pipex, "invalid number of arguments", NULL, 1);
 	}
 	if (heredoc)
