@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 00:17:00 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/19 21:44:38 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/20 10:49:29 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,12 @@
 
 # define USAGE "./pipex [\"here_doc\" <delimiter>]/[<infile>] <cmds> <outfile>"
 
-# include <unistd.h>
-# include <stdlib.h>
-# include <stdio.h>
-# include <sys/wait.h>
-# include <fcntl.h>
 # include "libft.h"
+# include <fcntl.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <sys/wait.h>
+# include <unistd.h>
 
 typedef struct s_pipex
 {
@@ -30,9 +30,10 @@ typedef struct s_pipex
 	int		infile_fd;
 	int		outfile_fd;
 	char	*limiter;
-}	t_pipex;
+}			t_pipex;
 
-void	execute_command(char *cmd, char **envp);
-void	parse_input(int argc, char **argv, char **envp, t_pipex *pipex);
+void		execute_command(char *cmd, char **envp);
+int			execute_pipeline(t_pipex *pipex);
+void		parse_input(int argc, char **argv, char **envp, t_pipex *pipex);
 
 #endif
