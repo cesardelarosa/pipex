@@ -1,53 +1,83 @@
-NAME = pipex
+NAME		= pipex
 
-SRC_DIR = src
-BONUS_DIR = bonus
-OBJ_DIR = obj
-LIBFT_DIR = ./libft
-INC_DIR = ./include
+INCLUDE_DIR	= include
+SRC_DIR		= src
+BONUS_DIR	= bonus
+OBJ_DIR		= obj
+LIBFT_DIR	= libft
+MODE_FILE	= .mode
 
-SRCS = pipex.c
-SRCS_COMMON = execution.c
-SRCS_BONUS = pipex_bonus.c parse_bonus.c
+MANDATORY_SRC	= pipex.c execution.c
+MANDATORY_OBJ	= $(MANDATORY_SRC:%.c=$(OBJ_DIR)/%.o)
 
-OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS)) \
-	   $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS_COMMON))
-OBJS_BONUS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS_BONUS)) \
-			 $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS_COMMON))
+BONUS_SRC	= pipex_bonus.c parse_bonus.c execution_bonus.c
+BONUS_OBJ	= $(BONUS_SRC:%.c=$(OBJ_DIR)/%.o)
 
-LIBFT = $(LIBFT_DIR)/libft.a
+CC		= gcc
+CFLAGS	= -Wall -Werror -Wextra
+LDFLAGS	= -L $(LIBFT_DIR) -lft
+INCLUDE	= -I $(INCLUDE_DIR) -I $(LIBFT_DIR)
 
-CC = gcc
-CFLAGS = -Wall -Werror -Wextra -I$(LIBFT_DIR)
+GREEN	= \033[0;32m
+BLUE	= \033[0;34m
+YELLOW	= \033[1;33m
+RED		= \033[0;31m
+NC		= \033[0m
 
-all: $(NAME)
+all: mandatory
 
-bonus: $(OBJS_BONUS) $(LIBFT)
-	$(CC) $(CFLAGS) -I$(INC_DIR) -o $(NAME) $(OBJS_BONUS) -L$(LIBFT_DIR) -lft
+mandatory:
+	@if [ -f $(MODE_FILE) ] && [ "$$(cat $(MODE_FILE))" = "mandatory" ]; then \
+		echo "$(BLUE)[pipex] La versión mandatory ya está compilada.$(NC)"; \
+	else \
+		$(MAKE) re_mandatory; \
+	fi
 
-$(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) -I$(INC_DIR) -o $(NAME) $(OBJS) -L$(LIBFT_DIR) -lft
+bonus:
+	@if [ -f $(MODE_FILE) ] && [ "$$(cat $(MODE_FILE))" = "bonus" ]; then \
+		echo "$(BLUE)[pipex] La versión bonus ya está compilada.$(NC)"; \
+	else \
+		$(MAKE) re_bonus; \
+	fi
+
+re_mandatory: $(OBJ_DIR) $(MANDATORY_OBJ) $(LIBFT_DIR)/libft.a
+	@echo "$(BLUE)[pipex] Linkeando y generando el ejecutable MANDATORY...$(NC)"
+	$(CC) $(CFLAGS) $(MANDATORY_OBJ) -o $(NAME) $(LDFLAGS)
+	@echo "mandatory" > $(MODE_FILE)
+	@echo "$(GREEN)[pipex] Compilación MANDATORY completada$(NC)"
+
+re_bonus: $(OBJ_DIR) $(BONUS_OBJ) $(LIBFT_DIR)/libft.a
+	@echo "$(BLUE)[pipex] Linkeando y generando el ejecutable BONUS...$(NC)"
+	$(CC) $(CFLAGS) $(BONUS_OBJ) -o $(NAME) $(LDFLAGS)
+	@echo "bonus" > $(MODE_FILE)
+	@echo "$(GREEN)[pipex] Compilación BONUS completada$(NC)"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
+	@echo "$(YELLOW)[pipex] Compilando $<...$(NC)"
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(BONUS_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
+	@echo "$(YELLOW)[pipex] Compilando bonus $<...$(NC)"
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR):
+	@echo "$(BLUE)[pipex] Creando directorio de objetos...$(NC)"
 	mkdir -p $(OBJ_DIR)
 
-$(LIBFT):
-	make complete -C $(LIBFT_DIR)
+$(LIBFT_DIR)/libft.a:
+	$(MAKE) -C $(LIBFT_DIR) complete
 
 clean:
+	@echo "$(RED)[pipex] Limpiando objetos...$(NC)"
 	rm -rf $(OBJ_DIR)
-	make clean -C $(LIBFT_DIR)
+	$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
+	@echo "$(RED)[pipex] Eliminando ejecutable y archivo de modo...$(NC)"
 	rm -f $(NAME)
-	make fclean -C $(LIBFT_DIR)
+	rm -f $(MODE_FILE)
+	$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
 
-.PHONY: all bonus clean fclean re
+.PHONY: all mandatory bonus re_mandatory re_bonus clean fclean re
