@@ -13,7 +13,7 @@ MANDATORY_OBJ	= $(MANDATORY_SRC:%.c=$(OBJ_DIR)/%.o)
 BONUS_SRC	= pipex_bonus.c parse_bonus.c execution_bonus.c
 BONUS_OBJ	= $(BONUS_SRC:%.c=$(OBJ_DIR)/%.o)
 
-CC		= gcc
+CC		= cc
 CFLAGS	= -Wall -Werror -Wextra
 LDFLAGS	= -L $(LIBFT_DIR) -lft
 INCLUDE	= -I $(INCLUDE_DIR) -I $(LIBFT_DIR)
