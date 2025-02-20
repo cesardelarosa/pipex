@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 00:17:00 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/20 10:49:29 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/20 11:32:59 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,13 @@ typedef struct s_pipex
 	int		infile_fd;
 	int		outfile_fd;
 	char	*limiter;
+	pid_t	*pid_arr;
 }			t_pipex;
 
-void		execute_command(char *cmd, char **envp);
+void		execute_command(t_pipex *pipex, int i);
 int			execute_pipeline(t_pipex *pipex);
 void		parse_input(int argc, char **argv, char **envp, t_pipex *pipex);
+void		free_and_exit(t_pipex *pipex, char *msg, char *cmd, int exit_code);
+void		free_pipex(t_pipex *pipex);
 
 #endif

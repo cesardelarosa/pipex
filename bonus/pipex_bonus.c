@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 00:17:00 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/20 10:51:13 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/20 11:35:21 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,19 @@ void	free_pipex(t_pipex *pipex)
 		close(pipex->outfile_fd);
 		pipex->outfile_fd = -1;
 	}
+	if (pipex->pid_arr)
+	{
+		free(pipex->pid_arr);
+		pipex->pid_arr = NULL;
+	}
 	free(pipex);
+}
+
+void	free_and_exit(t_pipex *pipex, char *msg, char *cmd, int exit_code)
+{
+	if (pipex)
+		free_pipex(pipex);
+	ft_handle_errors("pipex", msg, cmd, exit_code);
 }
 
 int	main(int argc, char **argv, char **envp)
