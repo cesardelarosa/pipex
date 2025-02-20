@@ -6,18 +6,18 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 17:56:21 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/19 21:35:24 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/19 22:31:02 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-static void	open_file(t_pipex *pipex, int argc, char **argv)
+static void	open_file(t_pipex *pipex, int argc, char **argv, int heredoc)
 {
 	int	flags;
 
 	flags = O_WRONLY | O_CREAT;
-	if (pipex->here_doc)
+	if (heredoc)
 		flags |= O_APPEND;
 	else
 		flags |= O_TRUNC;
@@ -89,7 +89,7 @@ void	parse_input(int argc, char **argv, char **envp, t_pipex *pipex)
 {
 	int		heredoc;
 
-	heredoc = !ft_strcmp(argv[1], "here_doc");
+	heredoc = argc > 1 && ft_strcmp(argv[1], "here_doc") == 0;
 	if (argc < 5 + heredoc)
 	{
 		ft_printf("Usage: " USAGE);
@@ -108,5 +108,5 @@ void	parse_input(int argc, char **argv, char **envp, t_pipex *pipex)
 	pipex->envp = envp;
 	pipex->cmd_count = argc - 3 - heredoc;
 	pipex->cmds = parse_commands(argv, 2 + heredoc, pipex->cmd_count);
-	open_file(pipex, argc, argv);
+	open_file(pipex, argc, argv, heredoc);
 }

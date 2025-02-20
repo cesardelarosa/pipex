@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 00:17:00 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/19 21:35:06 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/02/19 22:18:33 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,27 @@ static void	launch_command(t_pipex *pipex, int i, int *in_fd, pid_t *pid_arr)
 	}
 }
 
+static int	wait_pids(pid_t *pid_arr, int n)
+{
+	int	i;
+	int	status;
+
+	i = 0;
+	while (i < n)
+	{
+		waitpid(pid_arr[i], &status, 0);
+		if (i++ == n - 1)
+			return (status);
+	}
+	return (0);
+}
+
 static int	execute_pipeline(t_pipex *pipex)
 {
 	int		i;
 	int		in_fd;
 	pid_t	*pid_arr;
+	int		status;
 
 	pid_arr = malloc(sizeof(pid_t) * pipex->cmd_count);
 	if (!pid_arr)
@@ -72,11 +88,9 @@ static int	execute_pipeline(t_pipex *pipex)
 		close(in_fd);
 	if (pipex->outfile_fd != -1)
 		close(pipex->outfile_fd);
-	i = 0;
-	while (i < pipex->cmd_count)
-		waitpid(pid_arr[i++], NULL, 0);
+	status = wait_pids(pid_arr, pipex->cmd_count);
 	free(pid_arr);
-	return (0);
+	return (WEXITSTATUS(status));
 }
 
 void	free_pipex(t_pipex *pipex)
@@ -102,18 +116,14 @@ void	free_pipex(t_pipex *pipex)
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	*pipex;
+	int		exit;
 
-	if (argc < 2)
-	{
-		ft_printf("Usage: " USAGE);
-		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
-	}
 	pipex = malloc(sizeof(t_pipex));
 	if (!pipex)
 		ft_handle_errors("pipex", "malloc failed", NULL, 1);
 	ft_bzero(pipex, sizeof(t_pipex));
 	parse_input(argc, argv, envp, pipex);
-	execute_pipeline(pipex);
+	exit = execute_pipeline(pipex);
 	free_pipex(pipex);
-	return (0);
+	return (exit);
 }
