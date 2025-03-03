@@ -27,53 +27,55 @@ NC        = \033[0m
 all: mandatory
 
 mandatory:
-	@if [ -f $(MODE_FILE) ] && [ "$$(cat $(MODE_FILE))" = "mandatory" ]; then \
-		echo "$(BLUE)[pipex] The mandatory version is already compiled.$(NC)"; \
-	else \
+	@if [ ! -f $(NAME) ] || [ ! -f $(MODE_FILE) ] || [ "$$(cat $(MODE_FILE))" != "mandatory" ] || [ "$$(find $(SRC_DIR) -name '*.c' -newer $(NAME))" != "" ]; then \
+		printf "$(BLUE)[pipex] Linking and generating the MANDATORY executable...$(NC)\n"; \
 		$(MAKE) re_mandatory; \
+	else \
+		printf "$(BLUE)[pipex] The mandatory version is already compiled.$(NC)\n"; \
 	fi
 
 bonus:
-	@if [ -f $(MODE_FILE) ] && [ "$$(cat $(MODE_FILE))" = "bonus" ]; then \
-		echo "$(BLUE)[pipex] The bonus version is already compiled.$(NC)"; \
-	else \
+	@if [ ! -f $(NAME) ] || [ ! -f $(MODE_FILE) ] || [ "$$(cat $(MODE_FILE))" != "bonus" ] || [ "$$(find $(BONUS_DIR) -name '*.c' -newer $(NAME))" != "" ]; then \
+		printf "$(BLUE)[pipex] Linking and generating the BONUS executable...$(NC)\n"; \
 		$(MAKE) re_bonus; \
+	else \
+		printf "$(BLUE)[pipex] The bonus version is already compiled.$(NC)\n"; \
 	fi
 
 re_mandatory: $(OBJ_DIR) $(MANDATORY_OBJ) $(LIBFT_DIR)/libft.a
-	@echo "$(BLUE)[pipex] Linking and generating the MANDATORY executable...$(NC)"
+	@printf "$(BLUE)[pipex] Linking and generating the MANDATORY executable...$(NC)\n"
 	$(CC) $(CFLAGS) $(MANDATORY_OBJ) -o $(NAME) $(LDFLAGS)
-	@echo "mandatory" > $(MODE_FILE)
-	@echo "$(GREEN)[pipex] MANDATORY compilation completed$(NC)"
+	@printf "mandatory\n" > $(MODE_FILE)
+	@printf "$(GREEN)[pipex] MANDATORY compilation completed$(NC)\n"
 
 re_bonus: $(OBJ_DIR) $(BONUS_OBJ) $(LIBFT_DIR)/libft.a
-	@echo "$(BLUE)[pipex] Linking and generating the BONUS executable...$(NC)"
+	@printf "$(BLUE)[pipex] Linking and generating the BONUS executable...$(NC)\n"
 	$(CC) $(CFLAGS) $(BONUS_OBJ) -o $(NAME) $(LDFLAGS)
-	@echo "bonus" > $(MODE_FILE)
-	@echo "$(GREEN)[pipex] BONUS compilation completed$(NC)"
+	@printf "bonus\n" > $(MODE_FILE)
+	@printf "$(GREEN)[pipex] BONUS compilation completed$(NC)\n"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	@echo "$(YELLOW)[pipex] Compiling $<...$(NC)"
+	@printf "$(YELLOW)[pipex] Compiling $<...$(NC)\n"
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(BONUS_DIR)/%.c | $(OBJ_DIR)
-	@echo "$(YELLOW)[pipex] Compiling bonus $<...$(NC)"
+	@printf "$(YELLOW)[pipex] Compiling bonus $<...$(NC)\n"
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR):
-	@echo "$(BLUE)[pipex] Creating objects directory...$(NC)"
+	@printf "$(BLUE)[pipex] Creating objects directory...$(NC)\n"
 	mkdir -p $(OBJ_DIR)
 
 $(LIBFT_DIR)/libft.a:
 	$(MAKE) -C $(LIBFT_DIR) complete
 
 clean:
-	@echo "$(RED)[pipex] Cleaning objects...$(NC)"
+	@printf "$(RED)[pipex] Cleaning objects...$(NC)\n"
 	rm -rf $(OBJ_DIR)
 	$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
-	@echo "$(RED)[pipex] Removing executable and mode file...$(NC)"
+	@printf "$(RED)[pipex] Removing executable and mode file...$(NC)\n"
 	rm -f $(NAME)
 	rm -f $(MODE_FILE)
 	$(MAKE) -C $(LIBFT_DIR) fclean
