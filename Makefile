@@ -7,7 +7,7 @@ OBJ_DIR     = obj
 LIBFT_DIR   = libft
 MODE_FILE   = .mode
 
-MANDATORY_SRC   = pipex.c execution.c
+MANDATORY_SRC   = pipex.c execution.c parse_args.c
 MANDATORY_OBJ   = $(MANDATORY_SRC:%.c=$(OBJ_DIR)/%.o)
 
 BONUS_SRC   = pipex_bonus.c parse_bonus.c pipeline_bonus.c execution_bonus.c utils_bonus.c

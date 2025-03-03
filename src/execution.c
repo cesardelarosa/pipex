@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 13:50:47 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/03 21:18:52 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/04 00:19:20 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "libft.h"
+#include "pipex.h"
 
 static char	*join_path(const char *dir, const char *cmd)
 {
@@ -87,7 +88,7 @@ void	execute_command(char *cmd, char **envp)
 	char	**args;
 	char	*exec_path;
 
-	args = ft_split(cmd, ' ');
+	args = parse_args(cmd);
 	if (!args)
 		ft_handle_errors("pipex", "malloc error", NULL, 1);
 	exec_path = find_exec(args[0], envp);
