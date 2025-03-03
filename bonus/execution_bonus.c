@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 09:20:40 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/02/20 11:26:13 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/03 21:22:47 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ static char	*find_exec(char *cmd, char **envp)
 	}
 	path_env = get_path_env(envp);
 	if (!path_env)
-		return (NULL);
+		path_env = ".";
 	paths = ft_split(path_env, ':');
 	if (!paths)
 		return (NULL);
