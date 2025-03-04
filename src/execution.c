@@ -6,13 +6,15 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 13:50:47 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/04 17:51:58 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/04 18:33:03 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <string.h>
 #include "libft.h"
 #include "pipex.h"
 
@@ -93,6 +95,7 @@ void	execute_command(char *cmd, char **envp)
 {
 	char	**args;
 	char	*exec_path;
+	int		exit_code;
 
 	args = parse_args(cmd);
 	if (!args)
@@ -104,8 +107,11 @@ void	execute_command(char *cmd, char **envp)
 		ft_handle_errors("pipex", "command not found", cmd, 127);
 	}
 	execve(exec_path, args, envp);
-	perror("execve");
-	free(exec_path);
-	ft_free_split(args);
-	exit(127);
+	if (errno == EACCES || errno == EISDIR)
+		exit_code = 126;
+	else if (errno == ENOENT)
+		exit_code = 127;
+	else
+		exit_code = 1;
+	ft_handle_errors("pipex", strerror(errno), args[0], exit_code);
 }
