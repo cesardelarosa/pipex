@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 13:50:47 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/04 02:41:25 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/04 17:51:58 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static char	*get_path_env(char **envp)
 	while (*envp && ft_strncmp(*envp, "PATH=", 5))
 		envp++;
 	if (!*envp)
-		return (NULL);
+		return (".");
 	return (*envp + 5);
 }
 
@@ -81,8 +81,6 @@ static char	*find_exec(char *cmd, char **envp)
 		return (NULL);
 	}
 	path_env = get_path_env(envp);
-	if (!path_env)
-		path_env = ".";
 	paths = ft_split(path_env, ':');
 	if (!paths)
 		return (NULL);
