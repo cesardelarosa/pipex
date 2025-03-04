@@ -6,7 +6,7 @@
 /*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 13:50:47 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/04 00:19:20 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/04 02:41:25 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,9 @@ static char	*get_path_env(char **envp)
 static char	*search_in_path(char *cmd, char **paths)
 {
 	char	*full_path;
+	int		found_not_executable;
 
+	found_not_executable = 0;
 	while (*paths)
 	{
 		full_path = join_path(*paths, cmd);
@@ -54,9 +56,13 @@ static char	*search_in_path(char *cmd, char **paths)
 			return (NULL);
 		if (access(full_path, X_OK) == 0)
 			return (full_path);
+		if (access(full_path, F_OK) == 0)
+			found_not_executable = 1;
 		free(full_path);
 		paths++;
 	}
+	if (found_not_executable)
+		ft_handle_errors("pipex", "permission denied", cmd, 126);
 	return (NULL);
 }
 
@@ -70,6 +76,8 @@ static char	*find_exec(char *cmd, char **envp)
 	{
 		if (access(cmd, X_OK) == 0)
 			return (ft_strdup(cmd));
+		if (access(cmd, F_OK) == 0)
+			ft_handle_errors("pipex", "permission denied", cmd, 126);
 		return (NULL);
 	}
 	path_env = get_path_env(envp);
