@@ -1,20 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   execution_bonus.c                                  :+:      :+:    :+:   */
+/*   execute_command.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
+/*   By: cde-la-r <cde-la-r@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/20 09:20:40 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/03 21:22:47 by cde-la-r         ###   ########.fr       */
+/*   Created: 2024/11/17 13:50:47 by cde-la-r          #+#    #+#             */
+/*   Updated: 2025/03/07 18:31:50 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <string.h>
 #include "libft.h"
-#include "pipex_bonus.h"
+#include "pipex.h"
 
 static char	*join_path(const char *dir, const char *cmd)
 {
@@ -39,14 +41,16 @@ static char	*get_path_env(char **envp)
 	while (*envp && ft_strncmp(*envp, "PATH=", 5))
 		envp++;
 	if (!*envp)
-		return (NULL);
+		return (".");
 	return (*envp + 5);
 }
 
 static char	*search_in_path(char *cmd, char **paths)
 {
 	char	*full_path;
+	int		found_not_executable;
 
+	found_not_executable = 0;
 	while (*paths)
 	{
 		full_path = join_path(*paths, cmd);
@@ -54,8 +58,15 @@ static char	*search_in_path(char *cmd, char **paths)
 			return (NULL);
 		if (access(full_path, X_OK) == 0)
 			return (full_path);
+		if (access(full_path, F_OK) == 0)
+			found_not_executable = 1;
 		free(full_path);
 		paths++;
+	}
+	if (found_not_executable)
+	{
+		errno = EACCES;
+		return (NULL);
 	}
 	return (NULL);
 }
@@ -70,11 +81,14 @@ static char	*find_exec(char *cmd, char **envp)
 	{
 		if (access(cmd, X_OK) == 0)
 			return (ft_strdup(cmd));
+		if (access(cmd, F_OK) == 0)
+		{
+			errno = EACCES;
+			return (NULL);
+		}
 		return (NULL);
 	}
 	path_env = get_path_env(envp);
-	if (!path_env)
-		path_env = ".";
 	paths = ft_split(path_env, ':');
 	if (!paths)
 		return (NULL);
@@ -83,24 +97,31 @@ static char	*find_exec(char *cmd, char **envp)
 	return (exec_path);
 }
 
-void	execute_command(t_pipex *pipex, int i)
+int	execute_command(t_command *command, char **envp)
 {
-	char	**args;
 	char	*exec_path;
+	int		exit_code;
 
-	args = ft_split(pipex->cmds[i], ' ');
-	if (!args)
-		free_and_exit(pipex, "malloc error", NULL, 1);
-	exec_path = find_exec(args[0], pipex->envp);
+	if (!command->argv || !command->argv[0])
+		return (1);
+	exec_path = find_exec(command->argv[0], envp);
 	if (!exec_path)
 	{
-		ft_free_split(args);
-		free_and_exit(pipex, "command not found", pipex->cmds[i], 127);
+		ft_print_error("pipex", command->argv[0], strerror(errno));
+		ft_free_split(command->argv);
+		if (errno == EACCES)
+			return (126);
+		return (127);
 	}
-	execve(exec_path, args, pipex->envp);
-	perror("execve");
+	execve(exec_path, command->argv, envp);
+	ft_print_error("pipex", command->argv[0], strerror(errno));
+	if (errno == EACCES || errno == EISDIR)
+		exit_code = 126;
+	else if (errno == ENOENT)
+		exit_code = 127;
+	else
+		exit_code = 1;
+	ft_free_split(command->argv);
 	free(exec_path);
-	ft_free_split(args);
-	free_pipex(pipex);
-	exit(127);
+	return (exit_code);
 }

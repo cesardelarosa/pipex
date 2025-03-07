@@ -3,98 +3,149 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cde-la-r <cde-la-r@42madrid.com>           +#+  +:+       +#+        */
+/*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/23 12:18:54 by cde-la-r          #+#    #+#             */
-/*   Updated: 2024/05/23 12:18:54 by cde-la-r         ###   ########.fr       */
+/*   Created: 2025/03/07 17:21:31 by cde-la-r          #+#    #+#             */
+/*   Updated: 2025/03/07 17:27:42 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <string.h>
 #include "libft.h"
 #include "pipex.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-static void	dup_with_error_check(int oldfd, int newfd, char *context)
+static int	validate_arguments(int argc, char **argv)
 {
-	if (dup2(oldfd, newfd) >= 0)
-		return ;
-	close(oldfd);
-	ft_handle_errors("pipex", "dup2 failed", context, 1);
+	if (argc != 5)
+	{
+		ft_printf("Usage: %s infile \"cmd1\" \"cmd2\" outfile\n", argv[0]);
+		return (0);
+	}
+	return (1);
 }
 
-static void	child_process(int *pipe_fd, char **argv, char **envp)
+static t_command	*create_command(char *cmd_str)
 {
-	int	infile;
+	t_command	*cmd;
 
-	infile = open(argv[1], O_RDONLY);
-	if (infile < 0)
-		ft_handle_errors("pipex", strerror(errno), argv[1], 1);
-	close(pipe_fd[0]);
-	dup_with_error_check(infile, STDIN_FILENO, "infile");
-	dup_with_error_check(pipe_fd[1], STDOUT_FILENO, "pipe output");
-	close(pipe_fd[1]);
-	close(infile);
-	execute_command(argv[2], envp);
+	cmd = malloc(sizeof(t_command));
+	if (!cmd)
+		return (NULL);
+	cmd->argv = parse_args(cmd_str);
+	if (!cmd->argv)
+	{
+		free(cmd);
+		return (NULL);
+	}
+	cmd->redir = NULL;
+	return (cmd);
 }
 
-static void	parent_process(int *pipe_fd, char **argv, char **envp)
+static void	free_command(void *content)
 {
-	int	outfile;
+	t_command	*cmd;
 
-	outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (outfile < 0)
-		ft_handle_errors("pipex", strerror(errno), argv[4], 1);
-	close(pipe_fd[1]);
-	dup_with_error_check(pipe_fd[0], STDIN_FILENO, "pipe input");
-	dup_with_error_check(outfile, STDOUT_FILENO, "outfile");
-	close(pipe_fd[0]);
-	close(outfile);
-	execute_command(argv[3], envp);
+	cmd = (t_command *)content;
+	if (cmd)
+	{
+		if (cmd->redir)
+			free(cmd->redir);
+		if (cmd->argv)
+			ft_free_split(cmd->argv);
+		free(cmd);
+	}
 }
 
-static int	wait_children(pid_t pid[2])
+static t_pipeline	*init_pipeline(void)
 {
-	int	status[2];
-	int	exit_code;
+	t_pipeline	*pipeline;
 
-	waitpid(pid[0], &status[0], 0);
-	waitpid(pid[1], &status[1], 0);
-	if (WIFEXITED(status[1]))
-		exit_code = WEXITSTATUS(status[1]);
-	else
-		exit_code = 1;
-	return (exit_code);
+	pipeline = malloc(sizeof(t_pipeline));
+	if (!pipeline)
+		return (perror("malloc"), NULL);
+	pipeline->cmd_list = NULL;
+	pipeline->n = 0;
+	return (pipeline);
+}
+
+static t_command	*create_redir_command(char *cmd_str, int redir_type,
+		char *file)
+{
+	t_command	*cmd;
+	t_redir		*redir;
+
+	cmd = create_command(cmd_str);
+	if (!cmd)
+		return (NULL);
+	redir = malloc(sizeof(t_redir));
+	if (!redir)
+	{
+		free_command(cmd);
+		return (NULL);
+	}
+	redir->type = redir_type;
+	redir->file = file;
+	cmd->redir = redir;
+	return (cmd);
+}
+
+static int	add_command_to_pipeline(t_pipeline *pipeline, char *cmd_str,
+		int redir_type, char *file)
+{
+	t_list		*new_node;
+	t_command	*cmd;
+
+	cmd = create_redir_command(cmd_str, redir_type, file);
+	if (!cmd)
+		return (0);
+	new_node = ft_lstnew(cmd);
+	if (!new_node)
+	{
+		free_command(cmd);
+		return (0);
+	}
+	ft_lstadd_back(&pipeline->cmd_list, new_node);
+	pipeline->n++;
+	return (1);
+}
+
+static void	destroy_pipeline(t_pipeline *pipeline)
+{
+	if (pipeline)
+	{
+		ft_lstclear(&pipeline->cmd_list, free_command);
+		free(pipeline);
+	}
+}
+
+static t_pipeline	*setup_pipeline(char **argv)
+{
+	t_pipeline	*pipeline;
+
+	pipeline = init_pipeline();
+	if (!pipeline)
+		return (NULL);
+	if (!add_command_to_pipeline(pipeline, argv[2], REDIR_INPUT, argv[1])
+		|| !add_command_to_pipeline(pipeline, argv[3], REDIR_OUTPUT, argv[4]))
+	{
+		destroy_pipeline(pipeline);
+		return (NULL);
+	}
+	return (pipeline);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	int		pipe_fd[2];
-	pid_t	pid[2];
+	t_pipeline	*pipeline;
+	int			exit_code;
 
-	if (argc != 5)
-	{
-		ft_printf("Usage: " USAGE "\n");
-		ft_handle_errors("pipex", "invalid number of arguments", NULL, 1);
-	}
-	if (pipe(pipe_fd) == -1)
-		ft_handle_errors("pipex", "pipe creation failed", NULL, 1);
-	pid[0] = fork();
-	if (pid[0] == -1)
-		ft_handle_errors("pipex", "fork failed", NULL, 1);
-	if (pid[0] == 0)
-		child_process(pipe_fd, argv, envp);
-	pid[1] = fork();
-	if (pid[1] == -1)
-		ft_handle_errors("pipex", "fork failed", NULL, 1);
-	if (pid[1] == 0)
-		parent_process(pipe_fd, argv, envp);
-	close(pipe_fd[0]);
-	close(pipe_fd[1]);
-	return (wait_children(pid));
+	if (!validate_arguments(argc, argv))
+		return (1);
+	pipeline = setup_pipeline(argv);
+	if (!pipeline)
+		return (1);
+	exit_code = execute_pipeline(pipeline, envp);
+	destroy_pipeline(pipeline);
+	return (exit_code);
 }
