@@ -15,10 +15,15 @@
 static void	write_heredoc_lines(int fd, t_redir *redir)
 {
 	char	*line;
+	int		tty_fd;
 
 	while (1)
 	{
-		ft_putstr_fd("> ", 1);
+		tty_fd = open("/dev/tty", O_WRONLY);
+		if (tty_fd < 0)
+			break ;
+		ft_putstr_fd("> ", tty_fd);
+		close(tty_fd);
 		line = get_next_line(STDIN_FILENO);
 		if (!line)
 			break ;

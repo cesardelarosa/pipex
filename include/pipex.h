@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 13:01:51 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:54:58 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/09 00:02:14 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,13 +69,11 @@ int			pipeline_add_command(t_pipeline *p, t_command *cmd);
 int			pipeline_execute(t_pipeline *p, t_context *ctx);
 int			execute_command(t_command *cmd, t_context *ctx);
 char		*find_executable(char *cmd, char **envp);
-void		error_exit(char *msg, char *target, t_context *ctx);
 void		error_exit_code(int code, char *msg, char *target, t_context *ctx);
 void		register_fd(int fd, t_context *ctx);
 void		close_all_fds(t_context *ctx);
 void		close_all_pipes(t_pipeline *p);
 void		cleanup_pipeline(t_pipeline *p);
 char		**parse_args(const char *input);
-int			errno_exit_code(void);
 
 #endif
