@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:22 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 12:53:31 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/08 13:54:41 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,13 @@ void	error_exit_code(int code, char *msg, char *target, t_context *ctx)
 {
 	ctx->exit_code = code;
 	error_exit(msg, target, ctx);
+}
+
+int	errno_exit_code(void)
+{
+	if (errno == ENOENT)
+		return (127);
+	if (errno == EACCES)
+		return (126);
+	return (1);
 }

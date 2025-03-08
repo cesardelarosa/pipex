@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 13:01:51 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:03:02 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/08 13:54:58 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,5 +76,6 @@ void		close_all_fds(t_context *ctx);
 void		close_all_pipes(t_pipeline *p);
 void		cleanup_pipeline(t_pipeline *p);
 char		**parse_args(const char *input);
+int			errno_exit_code(void);
 
 #endif
