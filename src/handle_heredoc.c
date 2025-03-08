@@ -6,95 +6,54 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:40 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 19:31:26 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/08 23:27:11 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static char	*generate_temp_name(void)
-{
-	char	*name;
-
-	name = ft_strdup("/tmp/pipex_heredoc");
-	return (name);
-}
-
-static int	create_temp_file(char **temp_file, t_context *ctx)
-{
-	*temp_file = generate_temp_name();
-	if (!*temp_file)
-	{
-		error_exit_code(1, "malloc failed", NULL, ctx);
-		return (0);
-	}
-	return (1);
-}
-
-static int	read_input_to_file(int fd, char *delimiter)
+static void	write_heredoc_lines(int fd, t_redir *redir)
 {
 	char	*line;
-	char	*cmp_line;
 
 	while (1)
 	{
-		ft_putstr_fd("> ", STDOUT_FILENO);
+		ft_putstr_fd("> ", 1);
 		line = get_next_line(STDIN_FILENO);
 		if (!line)
 			break ;
-		cmp_line = ft_strtrim(line, "\n");
-		if (ft_strcmp(cmp_line, delimiter) == 0)
+		if (ft_strcmp(line, redir->file) == 0)
 		{
-			free(cmp_line);
 			free(line);
 			break ;
 		}
-		free(cmp_line);
-		ft_putstr_fd(line, fd);
+		write(fd, line, ft_strlen(line));
+		write(fd, "\n", 1);
 		free(line);
-	}
-	return (1);
-}
-
-static void	cleanup_temp_file(int fd, char *temp_file, t_context *ctx)
-{
-	close(fd);
-	fd = open(temp_file, O_RDONLY);
-	if (fd < 0)
-	{
-		free(temp_file);
-		error_exit_code(1, strerror(errno), "heredoc", ctx);
-	}
-	unlink(temp_file);
-	free(temp_file);
-	register_fd(fd, ctx);
-	if (dup2(fd, STDIN_FILENO) < 0)
-	{
-		close(fd);
-		error_exit_code(1, strerror(errno), "heredoc dup2", ctx);
 	}
 }
 
 int	handle_heredoc(t_redir *redir, t_context *ctx)
 {
-	char	*temp_file;
-	int		fd;
+	int			fd;
+	int			dup_ret;
+	const char	*tmp_path = "/tmp/.heredoc_tmp";
 
-	if (!create_temp_file(&temp_file, ctx))
-		return (-1);
-	fd = open(temp_file, O_RDWR | O_CREAT | O_TRUNC, 0600);
+	fd = open(tmp_path, O_RDWR | O_CREAT | O_TRUNC, 0600);
 	if (fd < 0)
-	{
-		free(temp_file);
-		error_exit_code(1, strerror(errno), "heredoc", ctx);
-	}
-	if (!read_input_to_file(fd, redir->file))
+		error_exit_code(1, strerror(errno), "open", ctx);
+	write_heredoc_lines(fd, redir);
+	close(fd);
+	fd = open(tmp_path, O_RDONLY);
+	if (fd < 0)
+		error_exit_code(1, strerror(errno), "open", ctx);
+	unlink(tmp_path);
+	dup_ret = dup2(fd, STDIN_FILENO);
+	if (dup_ret < 0)
 	{
 		close(fd);
-		free(temp_file);
-		error_exit_code(1, "warning: heredoc delimited by end-of-file",
-			redir->file, ctx);
+		error_exit_code(1, strerror(errno), "dup2", ctx);
 	}
-	cleanup_temp_file(fd, temp_file, ctx);
+	register_fd(fd, ctx);
 	return (0);
 }
