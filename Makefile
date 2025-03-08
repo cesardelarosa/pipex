@@ -1,25 +1,26 @@
 NAME := pipex
+BONUS_NAME := pipex_bonus
 CC := cc
-
-# Flags de compilación e inclusión
 CFLAGS := -Wall -Wextra -Werror
 INCLUDES := -I include -I libft
-
-# Flags de linking (-L para bibliotecas)
 LDFLAGS := -L libft -lft
-
-# Librería de libft
 LIBFT := libft/libft.a
 
-# Archivos fuente y objeto
-SRC := $(wildcard src/*.c)
+SRC_MAIN := $(filter-out src/main_bonus.c, $(wildcard src/*.c))
+SRC_BONUS := $(filter-out src/main.c, $(wildcard src/*.c))
 OBJ_DIR := obj
-OBJ := $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRC))
+OBJ_MAIN := $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRC_MAIN))
+OBJ_BONUS := $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRC_BONUS))
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(LIBFT)
-	$(CC) $(CFLAGS) $(INCLUDES) $(OBJ) $(LDFLAGS) -o $(NAME)
+$(NAME): $(OBJ_MAIN) $(LIBFT)
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJ_MAIN) $(LDFLAGS) -o $(NAME)
+
+bonus: $(BONUS_NAME)
+
+$(BONUS_NAME): $(OBJ_BONUS) $(LIBFT)
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJ_BONUS) $(LDFLAGS) -o $(BONUS_NAME)
 
 $(LIBFT):
 	make -C libft complete
@@ -36,8 +37,8 @@ clean:
 
 fclean: clean
 	make -C libft fclean
-	rm -f $(NAME)
+	rm -f $(NAME) $(BONUS_NAME)
 
-re: fclean all
+re: fclean all bonus
 
-.PHONY: all clean fclean re
+.PHONY: all bonus clean fclean re

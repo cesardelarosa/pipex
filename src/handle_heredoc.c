@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:40 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 17:57:51 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/08 19:31:26 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,9 @@
 
 static char	*generate_temp_name(void)
 {
-	char	*num;
 	char	*name;
 
-	num = ft_itoa(getpid());
-	if (!num)
-		return (NULL);
-	name = ft_strjoin("/tmp/pipex_heredoc_", num);
-	free(num);
+	name = ft_strdup("/tmp/pipex_heredoc");
 	return (name);
 }
 
@@ -39,24 +34,26 @@ static int	create_temp_file(char **temp_file, t_context *ctx)
 static int	read_input_to_file(int fd, char *delimiter)
 {
 	char	*line;
-	size_t	delim_len;
-	int		result;
+	char	*cmp_line;
 
-	delim_len = ft_strlen(delimiter);
-	result = 1;
 	while (1)
 	{
-		ft_putstr_fd("> ", 1);
-		line = get_next_line(0);
-		if (!line || (ft_strncmp(line, delimiter, delim_len) == 0
-				&& line[delim_len] == '\n'))
+		ft_putstr_fd("> ", STDOUT_FILENO);
+		line = get_next_line(STDIN_FILENO);
+		if (!line)
 			break ;
+		cmp_line = ft_strtrim(line, "\n");
+		if (ft_strcmp(cmp_line, delimiter) == 0)
+		{
+			free(cmp_line);
+			free(line);
+			break ;
+		}
+		free(cmp_line);
 		ft_putstr_fd(line, fd);
 		free(line);
 	}
-	if (line)
-		free(line);
-	return (result);
+	return (1);
 }
 
 static void	cleanup_temp_file(int fd, char *temp_file, t_context *ctx)
@@ -95,8 +92,8 @@ int	handle_heredoc(t_redir *redir, t_context *ctx)
 	{
 		close(fd);
 		free(temp_file);
-		error_exit_code(1,
-			"warning: heredoc delimited by end-of-file", redir->file, ctx);
+		error_exit_code(1, "warning: heredoc delimited by end-of-file",
+			redir->file, ctx);
 	}
 	cleanup_temp_file(fd, temp_file, ctx);
 	return (0);
