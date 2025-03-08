@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:40 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:53:48 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/08 17:57:51 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static int	create_temp_file(char **temp_file, t_context *ctx)
 	*temp_file = generate_temp_name();
 	if (!*temp_file)
 	{
-		error_exit_code(errno_exit_code(), "malloc failed", NULL, ctx);
+		error_exit_code(1, "malloc failed", NULL, ctx);
 		return (0);
 	}
 	return (1);
@@ -66,7 +66,7 @@ static void	cleanup_temp_file(int fd, char *temp_file, t_context *ctx)
 	if (fd < 0)
 	{
 		free(temp_file);
-		error_exit_code(errno_exit_code(), strerror(errno), "heredoc", ctx);
+		error_exit_code(1, strerror(errno), "heredoc", ctx);
 	}
 	unlink(temp_file);
 	free(temp_file);
@@ -74,8 +74,7 @@ static void	cleanup_temp_file(int fd, char *temp_file, t_context *ctx)
 	if (dup2(fd, STDIN_FILENO) < 0)
 	{
 		close(fd);
-		error_exit_code(errno_exit_code(),
-			strerror(errno), "heredoc dup2", ctx);
+		error_exit_code(1, strerror(errno), "heredoc dup2", ctx);
 	}
 }
 
@@ -90,13 +89,13 @@ int	handle_heredoc(t_redir *redir, t_context *ctx)
 	if (fd < 0)
 	{
 		free(temp_file);
-		error_exit_code(errno_exit_code(), strerror(errno), "heredoc", ctx);
+		error_exit_code(1, strerror(errno), "heredoc", ctx);
 	}
 	if (!read_input_to_file(fd, redir->file))
 	{
 		close(fd);
 		free(temp_file);
-		error_exit_code(errno_exit_code(),
+		error_exit_code(1,
 			"warning: heredoc delimited by end-of-file", redir->file, ctx);
 	}
 	cleanup_temp_file(fd, temp_file, ctx);
