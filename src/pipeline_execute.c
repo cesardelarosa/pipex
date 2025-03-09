@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:28:19 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:00:14 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/09 02:18:30 by cesi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ static int	fork_command(t_command *cmd, int cmd_idx, t_pipeline *p,
 		return (-1);
 	if (pid == 0)
 	{
-		setup_child_pipes(cmd_idx, p);
+		setup_child_pipes(cmd_idx, p, ctx);
 		if (handle_redirs(cmd->redirs, ctx) < 0)
 			exit(ctx->exit_code);
 		execute_command(cmd, ctx);
