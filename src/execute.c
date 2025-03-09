@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:28 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 15:03:06 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/09 15:29:00 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ int	execute_command(t_command *cmd, char **envp)
 	if (!path)
 		error_exit_code(127, "command not found", cmd->argv[0], cmd->p);
 	execve(path, cmd->argv, envp);
-	error_exit_code(126, strerror(errno), path, cmd->p);
+	free(path);
+	error_exit_code(126, strerror(errno), cmd->argv[0], cmd->p);
 	return (-1);
 }
