@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:28:24 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:01:00 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/09 15:40:46 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,12 @@
 
 void	close_all_pipes(t_pipeline *p)
 {
-	int	i;
+	unsigned int	i;
 
 	if (!p->pipes)
 		return ;
 	i = 0;
-	while (i < p->cmd_count - 1)
+	while (i + 1 < p->cmd_count)
 	{
 		close(p->pipes[i][0]);
 		close(p->pipes[i][1]);

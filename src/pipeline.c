@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:28:14 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 15:21:17 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/09 15:40:21 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,12 @@ t_pipeline	*pipeline_create(void)
 
 void	pipeline_destroy(t_pipeline *pipeline)
 {
-	int	i;
+	unsigned int	i;
 
 	if (pipeline->pipes)
 	{
 		i = 0;
-		while (i < pipeline->cmd_count - 1)
+		while (i + 1 < pipeline->cmd_count)
 		{
 			free(pipeline->pipes[i]);
 			i++;

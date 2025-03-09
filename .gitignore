@@ -1,14 +1,12 @@
 *
 !.gitignore
 !.gitmodules
-!*/
 !include/*.h
 !libft/*.h
 !libft/*.c
 !libft/Makefile
 !src/*.c
 !bonus/*.c
-!minilibx/*
 !Makefile
 !README.md
 !tests/*.sh

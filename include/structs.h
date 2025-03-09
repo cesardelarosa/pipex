@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 13:01:51 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 15:18:02 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/09 15:39:25 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,10 @@ typedef struct s_redir
 
 typedef struct s_pipeline
 {
-	t_list	*commands;
-	int		cmd_count;
-	int		**pipes;
-	pid_t	*pids;
+	t_list			*commands;
+	unsigned int	cmd_count;
+	int				**pipes;
+	pid_t			*pids;
 }	t_pipeline;
 
 typedef struct s_command
