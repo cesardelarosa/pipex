@@ -55,7 +55,7 @@ int	handle_heredoc(t_redir *redir)
 	if (dup2(fd, STDIN_FILENO) < 0)
 	{
 		close(fd);
-		error_exit_code(1, strerror(errno), "dup2");
+		return (-1);
 	}
 	close(fd);
 	return (0);

@@ -62,9 +62,10 @@ static int	fork_command(t_command *cmd, int index, t_pipeline *p, char **envp)
 	if (pid == 0)
 	{
 		setup_child_pipes(index, p);
-		handle_redirs(cmd->redirs);
+		if (handle_redirs(cmd->redirs) < 0)
+			error_exit_code(1, "redirection failed", NULL);
 		execute_command(cmd, envp);
-		error_exit_code(1, strerror(errno), "execute_command");
+		error_exit_code(1, "somehow execute_command failed", NULL);
 	}
 	return (pid);
 }
