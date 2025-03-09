@@ -12,17 +12,17 @@
 
 #include "pipex.h"
 
-int	handle_redir_append(t_redir *redir, t_context *ctx)
+int	handle_redir_append(t_redir *redir)
 {
 	int	fd;
 
 	fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
-		error_exit_code(1, strerror(errno), redir->file, ctx);
+		error_exit_code(1, strerror(errno), redir->file);
 	if (dup2(fd, STDOUT_FILENO) < 0)
 	{
 		close(fd);
-		error_exit_code(1, strerror(errno), "dup2", ctx);
+		error_exit_code(1, strerror(errno), "dup2");
 	}
 	close(fd);
 	return (0);

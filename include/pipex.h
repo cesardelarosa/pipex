@@ -49,26 +49,19 @@ typedef struct s_pipeline
 	pid_t	*pids;
 }	t_pipeline;
 
-typedef struct s_context
-{
-	char		*prog_name;
-	char		**envp;
-	int			exit_code;
-}	t_context;
-
 t_command	*command_create(char *cmd_str);
 void		command_destroy(void *cmd);
 int			command_add_redir(t_command *cmd, t_redir_type type, char *file);
 t_redir		*redir_create(t_redir_type type, char *file);
 void		redir_destroy(void *redir);
-int			handle_redirs(t_list *redirs, t_context *ctx);
+int			handle_redirs(t_list *redirs);
 t_pipeline	*pipeline_create(void);
 void		pipeline_destroy(t_pipeline *pipeline);
 int			pipeline_add_command(t_pipeline *p, t_command *cmd);
-int			pipeline_execute(t_pipeline *p, t_context *ctx);
-int			execute_command(t_command *cmd, t_context *ctx);
+int			pipeline_execute(t_pipeline *p, char **envp);
+int			execute_command(t_command *cmd, char **envp);
 char		*find_executable(char *cmd, char **envp);
-void		error_exit_code(int code, char *msg, char *target, t_context *ctx);
+void		error_exit_code(int code, char *msg, char *target);
 void		safe_close(int *fd);
 void		close_all_pipes(t_pipeline *p);
 void		cleanup_pipeline(t_pipeline *p);

@@ -38,26 +38,24 @@ static void	write_heredoc_lines(int fd, t_redir *redir)
 	}
 }
 
-int	handle_heredoc(t_redir *redir, t_context *ctx)
+int	handle_heredoc(t_redir *redir)
 {
 	int			fd;
-	int			dup_ret;
 	const char	*tmp_path = "/tmp/.heredoc_tmp";
 
 	fd = open(tmp_path, O_RDWR | O_CREAT | O_TRUNC, 0600);
 	if (fd < 0)
-		error_exit_code(1, strerror(errno), "open", ctx);
+		error_exit_code(1, strerror(errno), "open");
 	write_heredoc_lines(fd, redir);
 	close(fd);
 	fd = open(tmp_path, O_RDONLY);
 	if (fd < 0)
-		error_exit_code(1, strerror(errno), "open", ctx);
+		error_exit_code(1, strerror(errno), "open");
 	unlink(tmp_path);
-	dup_ret = dup2(fd, STDIN_FILENO);
-	if (dup_ret < 0)
+	if (dup2(fd, STDIN_FILENO) < 0)
 	{
 		close(fd);
-		error_exit_code(1, strerror(errno), "dup2", ctx);
+		error_exit_code(1, strerror(errno), "dup2");
 	}
 	close(fd);
 	return (0);

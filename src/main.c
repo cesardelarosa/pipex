@@ -20,12 +20,6 @@ static void	validate_args(int argc)
 	exit(EXIT_FAILURE);
 }
 
-static void	init_ctx(t_context *ctx, char **envp)
-{
-	ctx->envp = envp;
-	ctx->exit_code = 0;
-}
-
 static void	init_pipeline(t_pipeline *pipeline, char **argv)
 {
 	t_command		*cmd1;
@@ -41,15 +35,13 @@ static void	init_pipeline(t_pipeline *pipeline, char **argv)
 
 int	main(int argc, char **argv, char **envp)
 {
-	t_context		ctx;
 	t_pipeline		*pipeline;
 	int				exit;
 
 	validate_args(argc);
 	pipeline = pipeline_create();
 	init_pipeline(pipeline, argv);
-	init_ctx(&ctx, envp);
-	exit = pipeline_execute(pipeline, &ctx);
+	exit = pipeline_execute(pipeline, envp);
 	pipeline_destroy(pipeline);
 	return (exit);
 }

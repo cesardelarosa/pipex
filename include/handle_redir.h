@@ -15,9 +15,9 @@
 
 # include "pipex.h"
 
-int	handle_redir_in(t_redir *redir, t_context *ctx);
-int	handle_redir_out(t_redir *redir, t_context *ctx);
-int	handle_redir_append(t_redir *redir, t_context *ctx);
-int	handle_heredoc(t_redir *redir, t_context *ctx);
+int	handle_redir_in(t_redir *redir);
+int	handle_redir_out(t_redir *redir);
+int	handle_redir_append(t_redir *redir);
+int	handle_heredoc(t_redir *redir);
 
 #endif

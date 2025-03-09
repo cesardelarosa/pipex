@@ -68,16 +68,9 @@ static void	init_heredoc(t_pipeline *pipeline, int argc, char **argv)
 	command_add_redir(cmd, REDIR_APPEND, argv[argc - 1]);
 }
 
-static void	init_ctx(t_context *ctx, char **envp)
-{
-	ctx->envp = envp;
-	ctx->exit_code = 0;
-}
-
 int	main(int argc, char **argv, char **envp)
 {
 	int			is_heredoc;
-	t_context	ctx;
 	t_pipeline	*pipeline;
 	int			exit;
 
@@ -87,8 +80,7 @@ int	main(int argc, char **argv, char **envp)
 		init_heredoc(pipeline, argc, argv);
 	else
 		init_normal(pipeline, argc, argv);
-	init_ctx(&ctx, envp);
-	exit = pipeline_execute(pipeline, &ctx);
+	exit = pipeline_execute(pipeline, envp);
 	pipeline_destroy(pipeline);
 	return (exit);
 }

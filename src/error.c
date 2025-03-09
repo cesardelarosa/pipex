@@ -12,9 +12,8 @@
 
 #include "pipex.h"
 
-void	error_exit_code(int code, char *msg, char *target, t_context *ctx)
+void	error_exit_code(int code, char *msg, char *target)
 {
-	ctx->exit_code = code;
 	ft_putstr_fd("pipex: ", 2);
 	if (target)
 	{
@@ -23,5 +22,5 @@ void	error_exit_code(int code, char *msg, char *target, t_context *ctx)
 	}
 	ft_putstr_fd(msg, 2);
 	ft_putchar_fd('\n', 2);
-	exit(ctx->exit_code);
+	exit(code);
 }
