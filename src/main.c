@@ -20,9 +20,8 @@ static void	validate_args(int argc)
 	exit(EXIT_FAILURE);
 }
 
-static void	init_ctx(t_context *ctx, char *name, char **envp)
+static void	init_ctx(t_context *ctx, char **envp)
 {
-	ctx->prog_name = name;
 	ctx->envp = envp;
 	ctx->exit_code = 0;
 }
@@ -48,7 +47,7 @@ int	main(int argc, char **argv, char **envp)
 	validate_args(argc);
 	pipeline = pipeline_create();
 	init_pipeline(pipeline, argv);
-	init_ctx(&ctx, argv[0], envp);
+	init_ctx(&ctx, envp);
 	pipeline_execute(pipeline, &ctx);
 	pipeline_destroy(pipeline);
 	return (ctx.exit_code);
