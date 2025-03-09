@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:28 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 15:29:00 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/09 23:30:34 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ static char	*find_executable(char *cmd, char **envp)
 	char	*path_env;
 	char	*exec_path;
 
+	if (!cmd || !*cmd)
+		return (NULL);
 	if (ft_strchr(cmd, '/'))
 		return (ft_strdup(cmd));
 	path_env = get_env_value("PATH", envp);
