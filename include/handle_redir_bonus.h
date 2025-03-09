@@ -1,28 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   handle_redir_bonus.h                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/08 12:27:22 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 02:19:48 by cesi             ###   ########.fr       */
+/*   Created: 2025/03/08 13:02:12 by cde-la-r          #+#    #+#             */
+/*   Updated: 2025/03/09 14:16:49 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "struct_creation.h"
-#include <stdlib.h>
+#ifndef HANDLE_REDIR_BONUS_H
+# define HANDLE_REDIR_BONUS_H
 
-void	error_exit_code(int code, char *msg, char *target, t_pipeline *p)
-{
-	ft_putstr_fd("pipex: ", 2);
-	if (target)
-	{
-		ft_putstr_fd(target, 2);
-		ft_putstr_fd(": ", 2);
-	}
-	ft_putstr_fd(msg, 2);
-	ft_putchar_fd('\n', 2);
-	pipeline_destroy(p);
-	exit(code);
-}
+# include "structs.h"
+
+int	handle_redir_in(t_redir *redir);
+int	handle_redir_out(t_redir *redir);
+int	handle_redir_append(t_redir *redir);
+int	handle_heredoc(t_redir *redir);
+
+#endif

@@ -22,7 +22,7 @@ static int	create_pipes(t_pipeline *p)
 
 	p->pipes = ft_calloc(p->cmd_count - 1, sizeof(int *));
 	if (!p->pipes)
-		error_exit_code(1, "malloc failed", NULL);
+		error_exit_code(1, "malloc failed", NULL, p);
 	i = 0;
 	while (i < p->cmd_count - 1)
 	{
@@ -32,7 +32,7 @@ static int	create_pipes(t_pipeline *p)
 			while (i-- > 0)
 				free(p->pipes[i]);
 			free(p->pipes);
-			error_exit_code(1, "pipe creation failed", NULL);
+			error_exit_code(1, "pipe creation failed", NULL, p);
 		}
 		i++;
 	}
@@ -47,9 +47,9 @@ static void	setup_child_pipes(int index, t_pipeline *p)
 	while (i < p->cmd_count - 1)
 	{
 		if (i == index - 1 && dup2(p->pipes[i][0], STDIN_FILENO) == -1)
-			error_exit_code(1, strerror(errno), "dup2");
+			error_exit_code(1, strerror(errno), "dup2", p);
 		if (i == index && dup2(p->pipes[i][1], STDOUT_FILENO) == -1)
-			error_exit_code(1, strerror(errno), "dup2");
+			error_exit_code(1, strerror(errno), "dup2", p);
 		safe_close(&p->pipes[i][0]);
 		safe_close(&p->pipes[i][1]);
 		i++;
@@ -67,7 +67,7 @@ static int	fork_command(t_command *cmd, int index, t_pipeline *p, char **envp)
 	{
 		setup_child_pipes(index, p);
 		execute_command(cmd, envp);
-		error_exit_code(1, "somehow execute_command failed", NULL);
+		error_exit_code(1, "somehow execute_command failed", NULL, p);
 	}
 	return (pid);
 }
@@ -103,7 +103,7 @@ int	pipeline_execute(t_pipeline *p, char **envp)
 		return (0);
 	p->pids = ft_calloc(p->cmd_count, sizeof(pid_t));
 	if (!p->pids)
-		error_exit_code(1, "malloc failed", NULL);
+		error_exit_code(1, "malloc failed", NULL, p);
 	if (!create_pipes(p))
 		return (0);
 	current_cmd = p->commands;
@@ -112,7 +112,7 @@ int	pipeline_execute(t_pipeline *p, char **envp)
 	{
 		p->pids[index] = fork_command(current_cmd->content, index, p, envp);
 		if (p->pids[index] < 0)
-			error_exit_code(1, "fork failed", NULL);
+			error_exit_code(1, "fork failed", NULL, p);
 		current_cmd = current_cmd->next;
 		index++;
 	}

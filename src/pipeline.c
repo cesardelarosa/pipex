@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:28:14 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 12:59:24 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/09 15:21:17 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,5 +48,6 @@ int	pipeline_add_command(t_pipeline *p, t_command *cmd)
 		return (0);
 	ft_lstadd_back(&p->commands, node);
 	p->cmd_count++;
+	cmd->p = p;
 	return (1);
 }

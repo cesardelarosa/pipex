@@ -20,7 +20,7 @@ int	handle_redir_in(t_redir *redir)
 
 	fd = open(redir->file, O_RDONLY);
 	if (fd < 0)
-		error_exit_code(1, strerror(errno), redir->file);
+		error_exit_code(1, strerror(errno), redir->file, redir->cmd->p);
 	if (dup2(fd, STDIN_FILENO) < 0)
 	{
 		close(fd);

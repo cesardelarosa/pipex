@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   handle_heredoc.c                                   :+:      :+:    :+:   */
+/*   handle_heredoc_bonus.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:40 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 23:27:11 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/09 15:21:40 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,12 @@ int	handle_heredoc(t_redir *redir)
 
 	fd = open(tmp_path, O_RDWR | O_CREAT | O_TRUNC, 0600);
 	if (fd < 0)
-		error_exit_code(1, strerror(errno), "open");
+		error_exit_code(1, strerror(errno), "open", redir->cmd->p);
 	write_heredoc_lines(fd, redir);
 	close(fd);
 	fd = open(tmp_path, O_RDONLY);
 	if (fd < 0)
-		error_exit_code(1, strerror(errno), "open");
+		error_exit_code(1, strerror(errno), "open", redir->cmd->p);
 	unlink(tmp_path);
 	if (dup2(fd, STDIN_FILENO) < 0)
 	{

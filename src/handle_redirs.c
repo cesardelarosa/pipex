@@ -1,40 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   redir.c                                            :+:      :+:    :+:   */
+/*   handle_redirs.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/08 12:28:31 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:01:21 by cesi             ###   ########.fr       */
+/*   Created: 2025/03/08 12:27:28 by cde-la-r          #+#    #+#             */
+/*   Updated: 2025/03/09 14:16:07 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include "structs.h"
+#include "handle_redir.h"
 
-t_redir	*redir_create(t_redir_type type, char *file)
+int	handle_redirs(t_list *redirs)
 {
 	t_redir	*r;
 
-	r = ft_calloc(1, sizeof(t_redir));
-	if (!r)
-		return (NULL);
-	r->type = type;
-	r->file = ft_strdup(file);
-	if (!r->file)
+	while (redirs)
 	{
-		free(r);
-		return (NULL);
+		r = (t_redir *)redirs->content;
+		if (r->type == REDIR_INPUT && handle_redir_in(r) < 0)
+			return (-1);
+		else if (r->type == REDIR_OUTPUT && handle_redir_out(r) < 0)
+			return (-1);
+		redirs = redirs->next;
 	}
-	return (r);
-}
-
-void	redir_destroy(void *content)
-{
-	t_redir	*r;
-
-	r = (t_redir *)content;
-	free(r->file);
-	free(r);
+	return (0);
 }

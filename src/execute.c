@@ -6,33 +6,13 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:28 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 13:25:23 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/09 15:03:06 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "errors.h"
 #include "common.h"
-#include "handle_redir.h"
-
-static int	handle_redirs(t_list *redirs)
-{
-	t_redir	*r;
-
-	while (redirs)
-	{
-		r = (t_redir *)redirs->content;
-		if (r->type == REDIR_INPUT && handle_redir_in(r) < 0)
-			return (-1);
-		else if (r->type == REDIR_OUTPUT && handle_redir_out(r) < 0)
-			return (-1);
-		else if (r->type == REDIR_APPEND && handle_redir_append(r) < 0)
-			return (-1);
-		else if (r->type == REDIR_HEREDOC && handle_heredoc(r) < 0)
-			return (-1);
-		redirs = redirs->next;
-	}
-	return (0);
-}
+#include "execution.h"
 
 char	*get_env_value(char *key, char **envp)
 {
@@ -56,8 +36,9 @@ static char	*search_in_path(char *cmd, char **paths)
 	i = 0;
 	while (paths[i])
 	{
-		full_path = ft_strjoin(paths[i], "/");
-		full_path = ft_strjoin_free(full_path, cmd, 1);
+		full_path = ft_strjoin_free(ft_strjoin(paths[i], "/"), cmd, 1);
+		if (!full_path)
+			return (NULL);
 		if (access(full_path, X_OK) == 0)
 			return (full_path);
 		free(full_path);
@@ -88,11 +69,11 @@ int	execute_command(t_command *cmd, char **envp)
 	char	*path;
 
 	if (handle_redirs(cmd->redirs) < 0)
-		error_exit_code(1, "redirection failed", NULL);
+		error_exit_code(1, "redirection failed", NULL, cmd->p);
 	path = find_executable(cmd->argv[0], envp);
 	if (!path)
-		error_exit_code(127, "command not found", cmd->argv[0]);
+		error_exit_code(127, "command not found", cmd->argv[0], cmd->p);
 	execve(path, cmd->argv, envp);
-	error_exit_code(126, strerror(errno), path);
+	error_exit_code(126, strerror(errno), path, cmd->p);
 	return (-1);
 }
