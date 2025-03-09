@@ -43,12 +43,13 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_context		ctx;
 	t_pipeline		*pipeline;
+	int				exit;
 
 	validate_args(argc);
 	pipeline = pipeline_create();
 	init_pipeline(pipeline, argv);
 	init_ctx(&ctx, envp);
-	pipeline_execute(pipeline, &ctx);
+	exit = pipeline_execute(pipeline, &ctx);
 	pipeline_destroy(pipeline);
-	return (ctx.exit_code);
+	return (exit);
 }

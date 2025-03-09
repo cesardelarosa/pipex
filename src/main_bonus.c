@@ -79,6 +79,7 @@ int	main(int argc, char **argv, char **envp)
 	int			is_heredoc;
 	t_context	ctx;
 	t_pipeline	*pipeline;
+	int			exit;
 
 	is_heredoc = validate_args(argc, argv);
 	pipeline = pipeline_create();
@@ -87,7 +88,7 @@ int	main(int argc, char **argv, char **envp)
 	else
 		init_normal(pipeline, argc, argv);
 	init_ctx(&ctx, envp);
-	pipeline_execute(pipeline, &ctx);
+	exit = pipeline_execute(pipeline, &ctx);
 	pipeline_destroy(pipeline);
-	return (ctx.exit_code);
+	return (exit);
 }
