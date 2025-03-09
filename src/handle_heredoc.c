@@ -59,6 +59,6 @@ int	handle_heredoc(t_redir *redir, t_context *ctx)
 		close(fd);
 		error_exit_code(1, strerror(errno), "dup2", ctx);
 	}
-	register_fd(fd, ctx);
+	close(fd);
 	return (0);
 }

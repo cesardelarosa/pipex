@@ -29,8 +29,6 @@ void	pipeline_destroy(t_pipeline *pipeline)
 		i = 0;
 		while (i < pipeline->cmd_count - 1)
 		{
-			close(pipeline->pipes[i][0]);
-			close(pipeline->pipes[i][1]);
 			free(pipeline->pipes[i]);
 			i++;
 		}

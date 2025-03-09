@@ -42,21 +42,32 @@ static void	setup_child_pipes(int cmd_idx, t_pipeline *p)
 {
 	int	i;
 
+	if (cmd_idx > 0)
+	{
+		dup2(p->pipes[cmd_idx - 1][0], STDIN_FILENO);
+		safe_close(&p->pipes[cmd_idx - 1][0]);
+		safe_close(&p->pipes[cmd_idx - 1][1]);
+	}
+	if (cmd_idx < p->cmd_count - 1)
+	{
+		dup2(p->pipes[cmd_idx][1], STDOUT_FILENO);
+		safe_close(&p->pipes[cmd_idx][1]);
+		safe_close(&p->pipes[cmd_idx][0]);
+	}
 	i = 0;
 	while (i < p->cmd_count - 1)
 	{
-		if (cmd_idx > 0 && i == cmd_idx - 1)
-			dup2(p->pipes[i][0], STDIN_FILENO);
-		if (cmd_idx < p->cmd_count - 1 && i == cmd_idx)
-			dup2(p->pipes[i][1], STDOUT_FILENO);
-		close(p->pipes[i][0]);
-		close(p->pipes[i][1]);
+		if (i != cmd_idx - 1 && i != cmd_idx)
+		{
+			safe_close(&p->pipes[i][0]);
+			safe_close(&p->pipes[i][1]);
+		}
 		i++;
 	}
 }
 
 static int	fork_command(t_command *cmd, int cmd_idx, t_pipeline *p,
-			t_context *ctx)
+		t_context *ctx)
 {
 	pid_t	pid;
 
@@ -65,10 +76,12 @@ static int	fork_command(t_command *cmd, int cmd_idx, t_pipeline *p,
 		return (-1);
 	if (pid == 0)
 	{
+		close_all_fds(ctx);
 		setup_child_pipes(cmd_idx, p);
 		if (handle_redirs(cmd->redirs, ctx) < 0)
 			exit(ctx->exit_code);
 		execute_command(cmd, ctx);
+		exit(ctx->exit_code);
 	}
 	return (pid);
 }
@@ -85,6 +98,8 @@ static int	wait_for_children(t_pipeline *p, t_context *ctx)
 		{
 			if (WIFEXITED(status))
 				ctx->exit_code = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				ctx->exit_code = 128 + WTERMSIG(status);
 		}
 		i++;
 	}
@@ -110,7 +125,7 @@ int	pipeline_execute(t_pipeline *p, t_context *ctx)
 	{
 		p->pids[cmd_idx] = fork_command(current_cmd->content, cmd_idx, p, ctx);
 		if (p->pids[cmd_idx] < 0)
-			break ;
+			error_exit_code(1, "fork failed", NULL, ctx);
 		current_cmd = current_cmd->next;
 		cmd_idx++;
 	}

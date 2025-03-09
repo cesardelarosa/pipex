@@ -72,6 +72,7 @@ char		*find_executable(char *cmd, char **envp);
 void		error_exit_code(int code, char *msg, char *target, t_context *ctx);
 void		register_fd(int fd, t_context *ctx);
 void		close_all_fds(t_context *ctx);
+void		safe_close(int *fd);
 void		close_all_pipes(t_pipeline *p);
 void		cleanup_pipeline(t_pipeline *p);
 char		**parse_args(const char *input);
