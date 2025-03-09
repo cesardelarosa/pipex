@@ -19,6 +19,11 @@
 
 static int	validate_args(int argc, char **argv)
 {
+	if (!argv || !argv[1])
+	{
+		ft_putstr_fd("Usage: " NORMAL_USAGE "\n", 2);
+		exit(EXIT_FAILURE);
+	}
 	if (ft_strcmp(argv[1], "here_doc") == 0)
 	{
 		if (argc >= 6)
