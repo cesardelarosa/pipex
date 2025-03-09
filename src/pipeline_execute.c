@@ -10,7 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "common.h"
+#include "structs.h"
+#include "execution.h"
+#include "pipeline_utils.h"
+#include "errors.h"
 
 static int	create_pipes(t_pipeline *p)
 {
@@ -62,8 +66,6 @@ static int	fork_command(t_command *cmd, int index, t_pipeline *p, char **envp)
 	if (pid == 0)
 	{
 		setup_child_pipes(index, p);
-		if (handle_redirs(cmd->redirs) < 0)
-			error_exit_code(1, "redirection failed", NULL);
 		execute_command(cmd, envp);
 		error_exit_code(1, "somehow execute_command failed", NULL);
 	}

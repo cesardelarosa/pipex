@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
-#include "handle_redir.h"
+#include <stdlib.h>
+#include "structs.h"
 
 t_redir	*redir_create(t_redir_type type, char *file)
 {
@@ -37,24 +37,4 @@ void	redir_destroy(void *content)
 	r = (t_redir *)content;
 	free(r->file);
 	free(r);
-}
-
-int	handle_redirs(t_list *redirs)
-{
-	t_redir	*r;
-
-	while (redirs)
-	{
-		r = (t_redir *)redirs->content;
-		if (r->type == REDIR_INPUT && handle_redir_in(r) < 0)
-			return (-1);
-		else if (r->type == REDIR_OUTPUT && handle_redir_out(r) < 0)
-			return (-1);
-		else if (r->type == REDIR_APPEND && handle_redir_append(r) < 0)
-			return (-1);
-		else if (r->type == REDIR_HEREDOC && handle_heredoc(r) < 0)
-			return (-1);
-		redirs = redirs->next;
-	}
-	return (0);
 }

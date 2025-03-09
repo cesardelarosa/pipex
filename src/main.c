@@ -10,13 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "common.h"
+#include "struct_creation.h"
+#include "execution.h"
+
+#define USAGE "./pipex infile cmd1 cmd2 outfile"
 
 static void	validate_args(int argc)
 {
 	if (argc == 5)
 		return ;
-	ft_putstr_fd("Usage: ./pipex <infile> <cmd1> <cmd2> <outfile>\n", 2);
+	ft_putstr_fd("Usage: " USAGE "\n", 2);
 	exit(EXIT_FAILURE);
 }
 

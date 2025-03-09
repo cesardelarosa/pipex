@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "common.h"
+#include "structs.h"
+#include "errors.h"
 
 static void	write_heredoc_lines(int fd, t_redir *redir)
 {

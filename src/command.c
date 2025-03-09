@@ -6,11 +6,11 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:26:26 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:06:43 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/09 13:52:06 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "struct_creation.h"
 
 t_command	*command_create(char *cmd_str)
 {

@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "common.h"
+#include "structs.h"
+#include "errors.h"
 
 int	handle_redir_in(t_redir *redir)
 {

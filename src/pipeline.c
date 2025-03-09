@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "struct_creation.h"
 
 t_pipeline	*pipeline_create(void)
 {

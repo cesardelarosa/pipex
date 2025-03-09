@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "structs.h"
 
 void	close_all_pipes(t_pipeline *p)
 {
@@ -25,24 +25,6 @@ void	close_all_pipes(t_pipeline *p)
 		close(p->pipes[i][1]);
 		i++;
 	}
-}
-
-void	cleanup_pipeline(t_pipeline *p)
-{
-	int	i;
-
-	if (p->pipes)
-	{
-		i = 0;
-		while (i < p->cmd_count - 1)
-		{
-			free(p->pipes[i]);
-			i++;
-		}
-		free(p->pipes);
-	}
-	if (p->pids)
-		free(p->pids);
 }
 
 void	safe_close(int *fd)

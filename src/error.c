@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "libft.h"
+#include <stdlib.h>
 
 void	error_exit_code(int code, char *msg, char *target)
 {

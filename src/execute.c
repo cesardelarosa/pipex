@@ -6,16 +6,89 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:28 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 12:54:21 by cesi             ###   ########.fr       */
+/*   Updated: 2025/03/09 13:25:23 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "errors.h"
+#include "common.h"
+#include "handle_redir.h"
+
+static int	handle_redirs(t_list *redirs)
+{
+	t_redir	*r;
+
+	while (redirs)
+	{
+		r = (t_redir *)redirs->content;
+		if (r->type == REDIR_INPUT && handle_redir_in(r) < 0)
+			return (-1);
+		else if (r->type == REDIR_OUTPUT && handle_redir_out(r) < 0)
+			return (-1);
+		else if (r->type == REDIR_APPEND && handle_redir_append(r) < 0)
+			return (-1);
+		else if (r->type == REDIR_HEREDOC && handle_heredoc(r) < 0)
+			return (-1);
+		redirs = redirs->next;
+	}
+	return (0);
+}
+
+char	*get_env_value(char *key, char **envp)
+{
+	size_t	len;
+
+	len = ft_strlen(key);
+	while (*envp)
+	{
+		if (ft_strncmp(*envp, key, len) == 0 && (*envp)[len] == '=')
+			return (*envp + len + 1);
+		envp++;
+	}
+	return (NULL);
+}
+
+static char	*search_in_path(char *cmd, char **paths)
+{
+	char	*full_path;
+	int		i;
+
+	i = 0;
+	while (paths[i])
+	{
+		full_path = ft_strjoin(paths[i], "/");
+		full_path = ft_strjoin_free(full_path, cmd, 1);
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
+		free(full_path);
+		i++;
+	}
+	return (NULL);
+}
+
+static char	*find_executable(char *cmd, char **envp)
+{
+	char	**paths;
+	char	*path_env;
+	char	*exec_path;
+
+	if (ft_strchr(cmd, '/'))
+		return (ft_strdup(cmd));
+	path_env = get_env_value("PATH", envp);
+	if (!path_env)
+		return (ft_strjoin("./", cmd));
+	paths = ft_split(path_env, ':');
+	exec_path = search_in_path(cmd, paths);
+	ft_free_split(paths);
+	return (exec_path);
+}
 
 int	execute_command(t_command *cmd, char **envp)
 {
 	char	*path;
 
+	if (handle_redirs(cmd->redirs) < 0)
+		error_exit_code(1, "redirection failed", NULL);
 	path = find_executable(cmd->argv[0], envp);
 	if (!path)
 		error_exit_code(127, "command not found", cmd->argv[0]);

@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "common.h"
+#include "struct_creation.h"
+#include "execution.h"
 
 #define HEREDOC_USAGE "./pipex here_doc LIMITER cmd [cmd ...] outfile"
 #define NORMAL_USAGE "./pipex infile cmd [cmd ...] outfile"

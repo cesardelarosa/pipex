@@ -1,23 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   handle_redir.h                                     :+:      :+:    :+:   */
+/*   stdlibs.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/08 13:02:12 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/08 13:02:13 by cde-la-r         ###   ########.fr       */
+/*   Created: 2025/03/08 13:01:51 by cde-la-r          #+#    #+#             */
+/*   Updated: 2025/03/09 13:41:27 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HANDLE_REDIR_H
-# define HANDLE_REDIR_H
+#ifndef COMMON_H
+# define COMMON_H
 
-# include "structs.h"
-
-int	handle_redir_in(t_redir *redir);
-int	handle_redir_out(t_redir *redir);
-int	handle_redir_append(t_redir *redir);
-int	handle_heredoc(t_redir *redir);
+# include <unistd.h>
+# include <stdlib.h>
+# include <sys/wait.h>
+# include <fcntl.h>
+# include <errno.h>
+# include <string.h>
 
 #endif
