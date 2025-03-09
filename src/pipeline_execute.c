@@ -25,11 +25,8 @@ static int	create_pipes(t_pipeline *p, t_context *ctx)
 		p->pipes[i] = ft_calloc(2, sizeof(int));
 		if (!p->pipes[i] || pipe(p->pipes[i]) < 0)
 		{
-			while (i > 0)
-			{
-				i--;
+			while (i-- > 0)
 				free(p->pipes[i]);
-			}
 			free(p->pipes);
 			error_exit_code(1, "pipe creation failed", NULL, ctx);
 		}
@@ -38,30 +35,19 @@ static int	create_pipes(t_pipeline *p, t_context *ctx)
 	return (1);
 }
 
-static void	setup_child_pipes(int cmd_idx, t_pipeline *p)
+static void	setup_child_pipes(int cmd_idx, t_pipeline *p, t_context *ctx)
 {
 	int	i;
 
-	if (cmd_idx > 0)
-	{
-		dup2(p->pipes[cmd_idx - 1][0], STDIN_FILENO);
-		safe_close(&p->pipes[cmd_idx - 1][0]);
-		safe_close(&p->pipes[cmd_idx - 1][1]);
-	}
-	if (cmd_idx < p->cmd_count - 1)
-	{
-		dup2(p->pipes[cmd_idx][1], STDOUT_FILENO);
-		safe_close(&p->pipes[cmd_idx][1]);
-		safe_close(&p->pipes[cmd_idx][0]);
-	}
 	i = 0;
 	while (i < p->cmd_count - 1)
 	{
-		if (i != cmd_idx - 1 && i != cmd_idx)
-		{
-			safe_close(&p->pipes[i][0]);
-			safe_close(&p->pipes[i][1]);
-		}
+		if (i == cmd_idx - 1 && dup2(p->pipes[i][0], STDIN_FILENO) == -1)
+			error_exit_code(1, strerror(errno), "dup2", ctx);
+		if (i == cmd_idx && dup2(p->pipes[i][1], STDOUT_FILENO) == -1)
+			error_exit_code(1, strerror(errno), "dup2", ctx);
+		safe_close(&p->pipes[i][0]);
+		safe_close(&p->pipes[i][1]);
 		i++;
 	}
 }
@@ -76,7 +62,6 @@ static int	fork_command(t_command *cmd, int cmd_idx, t_pipeline *p,
 		return (-1);
 	if (pid == 0)
 	{
-		close_all_fds(ctx);
 		setup_child_pipes(cmd_idx, p);
 		if (handle_redirs(cmd->redirs, ctx) < 0)
 			exit(ctx->exit_code);

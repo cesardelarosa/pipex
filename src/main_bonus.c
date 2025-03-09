@@ -73,7 +73,6 @@ static void	init_ctx(t_context *ctx, char *name, char **envp)
 	ctx->prog_name = name;
 	ctx->envp = envp;
 	ctx->exit_code = 0;
-	ctx->open_fds = NULL;
 }
 
 int	main(int argc, char **argv, char **envp)

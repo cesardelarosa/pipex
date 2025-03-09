@@ -24,6 +24,5 @@ void	error_exit_code(int code, char *msg, char *target, t_context *ctx)
 	}
 	ft_putstr_fd(msg, 2);
 	ft_putchar_fd('\n', 2);
-	close_all_fds(ctx);
 	exit(ctx->exit_code);
 }

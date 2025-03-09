@@ -44,3 +44,12 @@ void	cleanup_pipeline(t_pipeline *p)
 	if (p->pids)
 		free(p->pids);
 }
+
+void	safe_close(int *fd)
+{
+	if (*fd >= 0)
+	{
+		close(*fd);
+		*fd = -1;
+	}
+}

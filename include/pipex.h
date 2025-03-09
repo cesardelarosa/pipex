@@ -54,7 +54,6 @@ typedef struct s_context
 	char		*prog_name;
 	char		**envp;
 	int			exit_code;
-	t_list		*open_fds;
 }	t_context;
 
 t_command	*command_create(char *cmd_str);
@@ -70,8 +69,6 @@ int			pipeline_execute(t_pipeline *p, t_context *ctx);
 int			execute_command(t_command *cmd, t_context *ctx);
 char		*find_executable(char *cmd, char **envp);
 void		error_exit_code(int code, char *msg, char *target, t_context *ctx);
-void		register_fd(int fd, t_context *ctx);
-void		close_all_fds(t_context *ctx);
 void		safe_close(int *fd);
 void		close_all_pipes(t_pipeline *p);
 void		cleanup_pipeline(t_pipeline *p);
