@@ -13,10 +13,10 @@ SRC_DIR := src
 OBJ_DIR := obj
 
 COMMON_SRC_FILES = \
-	command.c \
-	execute.c \
+	command_creation.c \
+	execute_command.c \
 	handle_redir_out.c \
-	pipeline.c \
+	pipeline_creation.c \
 	pipeline_utils.c \
 	error.c \
 	handle_redir_in.c \
