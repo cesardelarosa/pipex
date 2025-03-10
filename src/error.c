@@ -23,6 +23,7 @@ void	error_exit_code(int code, char *msg, char *target, t_pipeline *p)
 	}
 	ft_putstr_fd(msg, 2);
 	ft_putchar_fd('\n', 2);
-	pipeline_destroy(p);
+	if (p)
+		pipeline_destroy(p);
 	exit(code);
 }

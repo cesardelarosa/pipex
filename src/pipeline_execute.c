@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:28:19 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 15:43:31 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/10 04:42:28 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,11 @@ static int	create_pipes(t_pipeline *p)
 		if (!p->pipes[i] || pipe(p->pipes[i]) < 0)
 		{
 			while (i-- > 0)
+			{
+				close(p->pipes[i][0]);
+				close(p->pipes[i][1]);
 				free(p->pipes[i]);
+			}
 			free(p->pipes);
 			error_exit_code(1, "pipe creation failed", NULL, p);
 		}
@@ -76,24 +80,25 @@ static int	fork_command(t_command *cmd, unsigned int index, char **envp)
 
 static int	wait_for_children(t_pipeline *p)
 {
-	int				exit;
+	int				exit_status;
 	int				status;
+	pid_t			wpid;
 	unsigned int	i;
 
-	exit = 0;
+	exit_status = 0;
 	i = 0;
 	while (i < p->cmd_count)
 	{
-		if (waitpid(p->pids[i], &status, 0) > 0)
-		{
-			if (WIFEXITED(status))
-				exit = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-				exit = 128 + WTERMSIG(status);
-		}
+		wpid = waitpid(p->pids[i], &status, 0);
+		if (wpid < 0)
+			error_exit_code(1, "waitpid failed", NULL, p);
+		if (WIFEXITED(status))
+			exit_status = WEXITSTATUS(status);
+		else if (WIFSIGNALED(status))
+			exit_status = 128 + WTERMSIG(status);
 		i++;
 	}
-	return (exit);
+	return (exit_status);
 }
 
 int	pipeline_execute(t_pipeline *p, char **envp)

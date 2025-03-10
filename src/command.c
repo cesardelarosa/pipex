@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:26:26 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 15:20:53 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/10 00:36:50 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,8 @@ int	command_add_redir(t_command *cmd, t_redir_type type, char *file)
 	t_redir	*r;
 	t_list	*node;
 
+	if (!cmd)
+		return (0);
 	r = redir_create(type, file, cmd);
 	if (!r)
 		return (0);
