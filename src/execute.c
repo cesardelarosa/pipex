@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 12:27:28 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 23:30:34 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/10 11:51:40 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ static char	*find_executable(char *cmd, char **envp)
 	return (exec_path);
 }
 
-int	execute_command(t_command *cmd, char **envp)
+void	execute_command(t_command *cmd, char **envp)
 {
 	char	*path;
 
@@ -74,9 +74,12 @@ int	execute_command(t_command *cmd, char **envp)
 		error_exit_code(1, "redirection failed", NULL, cmd->p);
 	path = find_executable(cmd->argv[0], envp);
 	if (!path)
-		error_exit_code(127, "command not found", cmd->argv[0], cmd->p);
+		error_exit_code(127, "Command not found", cmd->argv[0], cmd->p);
 	execve(path, cmd->argv, envp);
 	free(path);
+	if (errno == ENOENT)
+		error_exit_code(127, "Command not found", cmd->argv[0], cmd->p);
+	if (errno == EACCES)
+		error_exit_code(126, "Permission denied", cmd->argv[0], cmd->p);
 	error_exit_code(126, strerror(errno), cmd->argv[0], cmd->p);
-	return (-1);
 }

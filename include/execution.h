@@ -6,7 +6,7 @@
 /*   By: cde-la-r <code@cesardelarosa.xyz>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 13:01:51 by cde-la-r          #+#    #+#             */
-/*   Updated: 2025/03/09 14:14:47 by cde-la-r         ###   ########.fr       */
+/*   Updated: 2025/03/10 11:38:33 by cde-la-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 # include "structs.h"
 
-int	pipeline_execute(t_pipeline *p, char **envp);
-int	execute_command(t_command *cmd, char **envp);
-int	handle_redirs(t_list *redirs);
+int		pipeline_execute(t_pipeline *p, char **envp);
+int		handle_redirs(t_list *redirs);
+void	execute_command(t_command *cmd, char **envp);
 
 #endif
